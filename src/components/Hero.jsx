@@ -62,13 +62,12 @@ export default function Hero() {
       >
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)',
-          borderRadius: 99, padding: '6px 16px', fontSize: 12, color: 'var(--indigo-l)',
+          background: 'rgba(0,200,245,0.10)', border: '1px solid rgba(0,200,245,0.3)',
+          borderRadius: 99, padding: '6px 16px', fontSize: 12, color: 'var(--cian)',
           fontWeight: 500,
         }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--indigo)', animation: 'pulse 2s infinite', display: 'inline-block' }} />
-          Exclusivo para <strong style={{ color: 'var(--t0)' }}>@usa.edu.co</strong>
-          &nbsp;· Universidad Sergio Arboleda
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--cian)', animation: 'pulse 2s infinite', display: 'inline-block' }} />
+          Gestión inteligente del tiempo académico
         </div>
       </motion.div>
 

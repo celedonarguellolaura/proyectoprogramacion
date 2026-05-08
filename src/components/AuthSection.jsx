@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useToast } from '../context/ToastContext'
 import { storage } from '../services/storage'
 
-const DOMAIN = '@usa.edu.co'
-const isUni = email => email.toLowerCase().trim().endsWith(DOMAIN) && email.length > DOMAIN.length
+const isEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase().trim())
 
 const perks = [
   { icon: '⚡', text: 'Pomodoro adaptativo según tu calendario de exámenes', color: 'var(--indigo-l)' },
@@ -261,8 +260,8 @@ function RegisterPanel({ onSwitch, onLogin }) {
   const validate = () => {
     const e = {}
     if (!name.trim() || name.trim().length < 2) e.name = 'Ingresa tu nombre completo.'
-    if (!isUni(email)) e.email = `El correo debe terminar en ${DOMAIN}`
-    if (storage.findUser(email)) e.email = 'Este correo ya está registrado.'
+    if (!isEmail(email)) e.email = 'Ingresa un correo electrónico válido.'
+    if (isEmail(email) && storage.findUser(email)) e.email = 'Este correo ya está registrado.'
     if (pass.length < 8) e.pass = 'La contraseña debe tener al menos 8 caracteres.'
     if (pass !== pass2) e.pass2 = 'Las contraseñas no coinciden.'
     return e
@@ -357,20 +356,11 @@ function RegisterPanel({ onSwitch, onLogin }) {
 
   return (
     <form onSubmit={submit} noValidate>
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)',
-        borderRadius: 8, padding: '5px 12px', fontSize: 12, color: 'var(--indigo-l)',
-        fontWeight: 500, marginBottom: 20,
-      }}>
-        🎓 Solo correos <strong style={{ color: 'var(--t0)' }}>@usa.edu.co</strong>
-      </div>
-
       <Field label="Nombre completo" id="reg-name" placeholder="Tu nombre" value={name} onChange={setName} err={errors.name} />
-      <Field label="Correo institucional" id="reg-email" type="email" placeholder="nombre@usa.edu.co"
+      <Field label="Correo electrónico" id="reg-email" type="email" placeholder="tu@correo.com"
         value={email} onChange={v => { setEmail(v); setErrors(p => ({ ...p, email: '' })) }}
-        hint={`Solo se aceptan correos ${DOMAIN}`} err={errors.email}
-        ok={isUni(email) && !errors.email ? '✓ Correo institucional válido' : ''} />
+        err={errors.email}
+        ok={isEmail(email) && !errors.email ? '✓ Correo válido' : ''} />
       <Field label="Contraseña" id="reg-pass" type="password" placeholder="Mínimo 8 caracteres"
         value={pass} onChange={v => { setPass(v); setErrors(p => ({ ...p, pass: '' })) }} err={errors.pass} />
       {pass && (
@@ -408,15 +398,11 @@ function LoginPanel({ onSwitch, onLogin }) {
   const submit = e => {
     e.preventDefault()
     const errs = {}
-    if (!email.trim()) errs.email = 'Ingresa tu correo.'
+    if (!email.trim() || !isEmail(email)) errs.email = 'Ingresa un correo electrónico válido.'
     if (!pass) errs.pass = 'Ingresa tu contraseña.'
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
 
-    if (!isUni(email)) {
-      addToast('Correo no institucional', `Solo se aceptan correos ${DOMAIN}`, 'error')
-      setErrors({ email: `Debe terminar en ${DOMAIN}` }); return
-    }
     const user = storage.getUsers().find(u => u.email === email.toLowerCase().trim() && u.pass === pass)
     if (!user) {
       addToast('Credenciales incorrectas', 'Verifica tu correo y contraseña.', 'error')
@@ -431,7 +417,7 @@ function LoginPanel({ onSwitch, onLogin }) {
 
   return (
     <form onSubmit={submit} noValidate>
-      <Field label="Correo institucional" id="log-email" type="email" placeholder="nombre@usa.edu.co"
+      <Field label="Correo electrónico" id="log-email" type="email" placeholder="tu@correo.com"
         value={email} onChange={v => { setEmail(v); setErrors(p => ({ ...p, email: '' })) }} err={errors.email} />
       <Field label="Contraseña" id="log-pass" type="password" placeholder="Tu contraseña"
         value={pass} onChange={v => { setPass(v); setErrors(p => ({ ...p, pass: '' })) }} err={errors.pass} />
@@ -470,7 +456,7 @@ export default function AuthSection({ onLogin }) {
               Empieza a estudiar con{' '}<span className="gt">propósito</span> hoy
             </h2>
             <p style={{ fontSize: 15, color: 'var(--t2)', marginBottom: 32, lineHeight: 1.75 }}>
-              Crea tu cuenta con tu correo <strong style={{ color: 'var(--indigo-l)' }}>@usa.edu.co</strong> y accede a todas las funcionalidades de forma completamente gratuita.
+              Crea tu cuenta con cualquier correo electrónico y accede a todas las funcionalidades de forma completamente gratuita.
             </p>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 14 }}>
               {perks.map((p, i) => (

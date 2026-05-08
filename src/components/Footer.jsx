@@ -64,10 +64,10 @@ export default function Footer() {
             </p>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 18,
-              background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
-              borderRadius: 8, padding: '5px 12px', fontSize: 12, color: 'var(--indigo-l)', fontWeight: 500,
+              background: 'rgba(0,200,245,0.10)', border: '1px solid rgba(0,200,245,0.25)',
+              borderRadius: 8, padding: '5px 12px', fontSize: 12, color: 'var(--cian)', fontWeight: 500,
             }}>
-              🎓 @usa.edu.co
+              🎓 EquilibraStudy
             </div>
           </motion.div>
 
@@ -100,10 +100,7 @@ export default function Footer() {
           fontSize: 13, color: 'var(--t3)',
         }}>
           <span>© 2026 EquilibraStudy — Todos los derechos reservados</span>
-          <span>
-            Hecho con ⚡ por Laura Celedon · Acceso exclusivo{' '}
-            <strong style={{ color: 'var(--indigo-l)' }}>@usa.edu.co</strong>
-          </span>
+          <span>Hecho con ⚡ por Laura Celedon</span>
         </div>
       </div>
 

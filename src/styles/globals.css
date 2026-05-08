@@ -1,28 +1,38 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:         #07070F;
-  --bg2:        #0D0D1C;
-  --bg3:        #131328;
+  --bg:         #FFFFFF;
+  --bg2:        #F7F7F7;
+  --bg3:        #EFEFEF;
 
-  --surface:    rgba(255,255,255,0.04);
-  --surface2:   rgba(255,255,255,0.07);
-  --border:     rgba(255,255,255,0.08);
-  --border2:    rgba(255,255,255,0.16);
+  --surface:    rgba(0,0,0,0.03);
+  --surface2:   rgba(0,0,0,0.06);
+  --border:     rgba(0,0,0,0.09);
+  --border2:    rgba(0,0,0,0.16);
 
-  --indigo:     #6366F1;
-  --indigo-l:   #818CF8;
-  --cyan:       #22D3EE;
-  --emerald:    #34D399;
-  --amber:      #FBBF24;
-  --rose:       #FB7185;
-  --violet:     #A78BFA;
-  --pink:       #F472B6;
+  /* Paleta Pastel Vibrante */
+  --cian:       #00C8F5;
+  --verde:      #33D17A;
+  --amarillo:   #F5D800;
+  --naranja:    #FF8040;
+  --lavanda:    #9B59F5;
+  --azul:       #4DA6FF;
+  --rosa:       #F060A8;
 
-  --t0: #FFFFFF;
-  --t1: rgba(255,255,255,0.78);
-  --t2: rgba(255,255,255,0.46);
-  --t3: rgba(255,255,255,0.24);
+  /* Aliases para compatibilidad */
+  --indigo:     #00C8F5;
+  --indigo-l:   #4DA6FF;
+  --cyan:       #00C8F5;
+  --emerald:    #33D17A;
+  --amber:      #F5D800;
+  --rose:       #FF8040;
+  --violet:     #9B59F5;
+  --pink:       #F060A8;
+
+  --t0: #1A1A2E;
+  --t1: rgba(26,26,46,0.82);
+  --t2: rgba(26,26,46,0.55);
+  --t3: rgba(26,26,46,0.35);
 
   --r:    16px;
   --r-sm: 10px;
@@ -43,24 +53,24 @@ body {
 }
 
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 
 /* ── gradient text ── */
 .gt {
-  background: linear-gradient(135deg, var(--indigo-l), var(--cyan));
+  background: linear-gradient(135deg, var(--azul), var(--cian));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .gt-amber {
-  background: linear-gradient(135deg, var(--amber), var(--rose));
+  background: linear-gradient(135deg, var(--amarillo), var(--naranja));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .gt-emerald {
-  background: linear-gradient(135deg, var(--emerald), var(--cyan));
+  background: linear-gradient(135deg, var(--verde), var(--cian));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -117,9 +127,9 @@ body {
   white-space: nowrap;
 }
 .btn-primary {
-  background: linear-gradient(135deg, var(--indigo), #4F46E5);
-  color: #fff;
-  box-shadow: 0 0 24px rgba(99,102,241,0.35);
+  background: var(--cian);
+  color: #003D4D;
+  box-shadow: 0 2px 16px rgba(0,200,245,0.3);
 }
 .btn-primary:hover { opacity: .88; }
 .btn-ghost {
@@ -127,7 +137,7 @@ body {
   border-color: var(--border2);
   color: var(--t1);
 }
-.btn-ghost:hover { background: var(--surface2); border-color: rgba(255,255,255,0.28); }
+.btn-ghost:hover { background: var(--surface2); border-color: var(--border2); }
 .btn-lg { padding: 15px 32px; font-size: 16px; border-radius: var(--r); }
 .btn-full { width: 100%; justify-content: center; }
 
@@ -144,7 +154,7 @@ body {
 .field-input {
   width: 100%;
   padding: 13px 16px;
-  background: rgba(255,255,255,0.05);
+  background: var(--surface);
   border: 1px solid var(--border2);
   border-radius: var(--r-sm);
   font-family: 'Inter', sans-serif;
@@ -155,16 +165,16 @@ body {
 }
 .field-input::placeholder { color: var(--t3); }
 .field-input:focus {
-  border-color: var(--indigo);
-  background: rgba(99,102,241,0.06);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  border-color: var(--cian);
+  background: rgba(0,200,245,0.05);
+  box-shadow: 0 0 0 3px rgba(0,200,245,0.15);
 }
-.field-input.ok  { border-color: var(--emerald); }
-.field-input.err { border-color: var(--rose); }
+.field-input.ok  { border-color: var(--verde); }
+.field-input.err { border-color: var(--naranja); }
 .field-hint { font-size: 12px; color: var(--t3); margin-top: 5px; }
-.field-err  { font-size: 12px; color: var(--rose); margin-top: 5px; display: none; }
+.field-err  { font-size: 12px; color: var(--naranja); margin-top: 5px; display: none; }
 .field-err.show { display: block; }
-.field-ok   { font-size: 12px; color: var(--emerald); margin-top: 5px; display: none; }
+.field-ok   { font-size: 12px; color: var(--verde); margin-top: 5px; display: none; }
 .field-ok.show  { display: block; }
 
 /* ── strength bar ── */

@@ -26,10 +26,11 @@ export default function Navbar() {
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
         height: 64,
-        background: scrolled ? 'rgba(7,7,15,0.85)' : 'transparent',
+        background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent',
         borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        transition: 'background .3s, border-color .3s, backdrop-filter .3s',
+        boxShadow: scrolled ? '0 1px 12px rgba(0,0,0,0.08)' : 'none',
+        transition: 'background .3s, border-color .3s, backdrop-filter .3s, box-shadow .3s',
         display: 'flex', alignItems: 'center',
       }}
     >
@@ -40,16 +41,16 @@ export default function Navbar() {
         <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, var(--indigo), var(--cyan))',
+            background: 'linear-gradient(135deg, var(--cian), var(--azul))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(99,102,241,0.4)',
+            boxShadow: '0 0 16px rgba(0,200,245,0.4)',
           }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M10 3v14M4 10l6-7 6 7" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               <circle cx="10" cy="14" r="3" stroke="#fff" strokeWidth="1.6"/>
             </svg>
           </div>
-          <span style={{ fontSize: 18, fontWeight: 600, color: 'var(--t0)' }}>
+          <span style={{ fontSize: 18, fontWeight: 600, color: '#1A1A2E' }}>
             Equilibra<span className="gt">Study</span>
           </span>
         </a>
@@ -60,11 +61,11 @@ export default function Navbar() {
           {links.map(l => (
             <li key={l.href}>
               <a href={l.href} style={{
-                color: 'var(--t2)', fontSize: 14, textDecoration: 'none',
+                color: 'rgba(26,26,46,0.55)', fontSize: 14, textDecoration: 'none',
                 fontWeight: 500, transition: 'color .2s',
               }}
-                onMouseEnter={e => e.target.style.color = 'var(--t0)'}
-                onMouseLeave={e => e.target.style.color = 'var(--t2)'}
+                onMouseEnter={e => e.target.style.color = '#1A1A2E'}
+                onMouseLeave={e => e.target.style.color = 'rgba(26,26,46,0.55)'}
               >{l.label}</a>
             </li>
           ))}

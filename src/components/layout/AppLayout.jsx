@@ -97,13 +97,13 @@ function SidebarContent({ user, currentPage, onNavigate, onGoHome, onLogout, onC
       <div style={{ padding: '12px' }}>
         <button onClick={onLogout} style={{
           width: '100%', padding: '10px', borderRadius: 10,
-          border: '1px solid rgba(251,113,133,0.25)',
-          background: 'rgba(251,113,133,0.08)',
-          color: '#FB7185', fontFamily: 'Inter', fontSize: 13,
+          border: `1px solid ${D.naranjaBg}`,
+          background: D.naranjaBg,
+          color: D.naranja, fontFamily: 'Inter', fontSize: 13,
           cursor: 'pointer', fontWeight: 500, transition: 'background .15s',
         }}
-          onMouseOver={e => e.currentTarget.style.background = 'rgba(251,113,133,0.16)'}
-          onMouseOut={e => e.currentTarget.style.background = 'rgba(251,113,133,0.08)'}
+          onMouseOver={e => e.currentTarget.style.background = D.naranjaDark === '#7A2E00' ? 'rgba(255,128,64,0.18)' : D.naranjaBg}
+          onMouseOut={e => e.currentTarget.style.background = D.naranjaBg}
         >
           Cerrar sesión
         </button>
@@ -170,9 +170,9 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
           .mobile-bar { display: flex !important; }
         }
         @media (min-width: 769px) { .mobile-bar { display: none !important; } }
-        * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+        * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.12) transparent; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
       `}</style>
     </div>
   )
