@@ -1,0 +1,1166 @@
+# 🚀 Plan de Implementación por Fases
+## Fullstack TypeScript · Next.js · Vercel · JSON Data Layer
+
+> **Referencia:** Plan de Infraestructura Fullstack v1.0  
+> **Metodología:** Entrega incremental — cada fase produce un entregable funcional y desplegado  
+> **Principio:** Nunca romper `main` — todo cambio pasa por rama + PR + checks verdes
+
+---
+
+## Resumen Ejecutivo de Fases
+
+```
+FASE 0 ──► FASE 1 ──► FASE 2 ──► FASE 3 ──► FASE 4
+Setup      Datos       UI Home    CI/CD       Expansión
+Día 1      Día 1-2     Día 2      Día 2-3     Post v1
+  │           │           │           │           │
+  ▼           ▼           ▼           ▼           ▼
+Repo +      /data/      Hola        Actions     API
+Vercel      JSON TS     Mundo       TypeCheck   Routes
+online      tipado      animado     en PRs      + Zod
+```
+
+| Fase | Nombre | Duración estimada | Entregable |
+|------|--------|-------------------|-----------|
+| 0 | Setup y Fundamentos | ~3 horas | Proyecto online en Vercel |
+| 1 | Capa de Datos JSON | ~2 horas | JSON leído con tipos TS |
+| 2 | Home "Hola Mundo" | ~3 horas | Animación elegante en producción |
+| 3 | Validación TypeScript y CI | ~2 horas | Pipeline verde en cada PR |
+| 4 | Expansión y API Routes | Abierto | Sistema escalable |
+
+---
+
+---
+
+# FASE 0 — Setup y Fundamentos
+
+> **Meta:** Tener el proyecto base corriendo en local y desplegado en Vercel con un solo commit.
+
+---
+
+## 0.1 Crear el Repositorio en GitHub
+
+**Acciones:**
+
+1. Ir a [github.com/new](https://github.com/new)
+2. Configurar el repositorio:
+   - **Nombre:** `mi-app-fullstack` (o el nombre elegido)
+   - **Visibilidad:** Private (recomendado para desarrollo inicial)
+   - **Inicializar con:** README.md ✅
+   - **Agregar .gitignore:** Node ✅
+   - **Licencia:** MIT (opcional)
+3. Clonar en local:
+
+```bash
+git clone https://github.com/tu-usuario/mi-app-fullstack.git
+cd mi-app-fullstack
+```
+
+**Verificación:** Repositorio visible en GitHub con rama `main` activa.
+
+---
+
+## 0.2 Inicializar el Proyecto Next.js con TypeScript
+
+**Comando de instalación:**
+
+```bash
+npx create-next-app@latest . \
+  --typescript \
+  --tailwind \
+  --app \
+  --eslint \
+  --src-dir=false \
+  --import-alias="@/*"
+```
+
+> El punto `.` instala en el directorio actual (el repo ya clonado).
+
+**Selecciones durante el wizard (si aparecen):**
+
+| Pregunta | Respuesta |
+|----------|-----------|
+| TypeScript | Yes |
+| ESLint | Yes |
+| Tailwind CSS | Yes |
+| `src/` directory | No |
+| App Router | Yes |
+| Import alias `@/*` | Yes |
+
+**Verificación:**
+
+```bash
+npm run dev
+# → Abrir http://localhost:3000 — debe mostrar la página default de Next.js
+```
+
+---
+
+## 0.3 Instalar Dependencias Adicionales
+
+```bash
+# Animaciones
+npm install framer-motion
+
+# Utilidad de tipos (para fases futuras)
+npm install -D @types/node
+```
+
+**Estado final de `package.json` (dependencias relevantes):**
+
+```json
+{
+  "dependencies": {
+    "next": "^14.x",
+    "react": "^18.x",
+    "react-dom": "^18.x",
+    "framer-motion": "^11.x"
+  },
+  "devDependencies": {
+    "typescript": "^5.x",
+    "@types/node": "^20.x",
+    "@types/react": "^18.x",
+    "@types/react-dom": "^18.x",
+    "tailwindcss": "^3.x",
+    "eslint": "^8.x",
+    "eslint-config-next": "^14.x"
+  }
+}
+```
+
+---
+
+## 0.4 Configurar Prettier
+
+```bash
+npm install -D prettier prettier-plugin-tailwindcss
+```
+
+Crear **`.prettierrc`** en la raíz:
+
+```json
+{
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "plugins": ["prettier-plugin-tailwindcss"]
+}
+```
+
+Agregar script en `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write ."
+  }
+}
+```
+
+---
+
+## 0.5 Configurar TypeScript Estricto
+
+Reemplazar el contenido de **`tsconfig.json`**:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "jsx": "preserve",
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+```
+
+**Verificación:**
+
+```bash
+npm run type-check
+# → 0 errores
+```
+
+---
+
+## 0.6 Conectar con Vercel
+
+1. Ir a [vercel.com/new](https://vercel.com/new)
+2. Seleccionar **"Import Git Repository"**
+3. Buscar y seleccionar `mi-app-fullstack`
+4. Configurar el proyecto:
+
+| Campo | Valor |
+|-------|-------|
+| Framework Preset | Next.js (auto-detectado) |
+| Root Directory | `.` (raíz) |
+| Build Command | `npm run build` |
+| Output Directory | `.next` (auto) |
+| Install Command | `npm install` |
+
+5. Hacer clic en **Deploy**
+6. Esperar 1-2 minutos hasta ver **"Congratulations!"**
+
+**Verificación:** URL pública de Vercel funciona y muestra la página default de Next.js.
+
+---
+
+## 0.7 Primer Commit Limpio
+
+```bash
+git add .
+git commit -m "feat: setup inicial Next.js 14 + TypeScript + Tailwind + Vercel"
+git push origin main
+```
+
+Verificar en Vercel que el push dispara un re-deploy automático.
+
+---
+
+## ✅ Checklist Fase 0
+
+- [ ] Repositorio creado en GitHub
+- [ ] Proyecto Next.js inicializado con TypeScript + Tailwind + App Router
+- [ ] Framer Motion instalado
+- [ ] Prettier configurado
+- [ ] `tsconfig.json` con modo estricto
+- [ ] `npm run type-check` → 0 errores
+- [ ] `npm run build` → build exitoso
+- [ ] Proyecto conectado a Vercel
+- [ ] URL de producción activa y funcional
+- [ ] Push a `main` dispara re-deploy automático
+
+---
+---
+
+# FASE 1 — Capa de Datos JSON
+
+> **Meta:** Implementar el sistema de datos con archivos JSON tipados en TypeScript, funcionando como base de datos de lectura.
+
+---
+
+## 1.1 Crear la Estructura de Carpetas
+
+```bash
+mkdir -p data
+mkdir -p types
+mkdir -p lib
+```
+
+Estructura resultante que se agrega al proyecto:
+
+```
+/
+├── data/          ← nueva
+├── types/         ← nueva
+└── lib/           ← nueva
+```
+
+---
+
+## 1.2 Crear los Archivos JSON de Datos
+
+**`data/site.json`** — Configuración general del sitio:
+
+```json
+{
+  "name": "Mi App",
+  "version": "1.0.0",
+  "locale": "es",
+  "hero": {
+    "title": "Hola Mundo",
+    "subtitle": "TypeScript · Next.js · Vercel",
+    "animationStyle": "elegant"
+  }
+}
+```
+
+**`data/content.json`** — Contenido dinámico (vacío para v1, listo para crecer):
+
+```json
+{
+  "sections": []
+}
+```
+
+---
+
+## 1.3 Definir los Tipos TypeScript
+
+Crear **`types/index.ts`**:
+
+```typescript
+// ─── Configuración del sitio ────────────────────────────────────────────────
+
+export type AnimationStyle = "elegant" | "minimal" | "bold";
+
+export interface HeroConfig {
+  title: string;
+  subtitle: string;
+  animationStyle: AnimationStyle;
+}
+
+export interface SiteConfig {
+  name: string;
+  version: string;
+  locale: string;
+  hero: HeroConfig;
+}
+
+// ─── Contenido dinámico ─────────────────────────────────────────────────────
+
+export interface Section {
+  id: string;
+  title: string;
+  body: string;
+}
+
+export interface ContentData {
+  sections: Section[];
+}
+```
+
+---
+
+## 1.4 Implementar el Helper de Lectura JSON
+
+Crear **`lib/data.ts`**:
+
+```typescript
+import fs from "fs";
+import path from "path";
+
+const DATA_DIR = path.join(process.cwd(), "data");
+
+/**
+ * Lee y parsea un archivo JSON de la carpeta /data con tipado genérico.
+ * Solo funciona en Server Components o API Routes (Node.js runtime).
+ *
+ * @param filename - Nombre del archivo sin extensión (ej: "site")
+ * @returns El objeto parseado con el tipo T especificado
+ */
+export function readJson<T>(filename: string): T {
+  const filePath = path.join(DATA_DIR, `${filename}.json`);
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`[data] Archivo no encontrado: ${filePath}`);
+  }
+
+  const raw = fs.readFileSync(filePath, "utf-8");
+
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    throw new Error(`[data] Error al parsear JSON: ${filename}.json`);
+  }
+}
+```
+
+> **Nota de arquitectura:** Esta función solo puede usarse en el lado del servidor (Server Components, Route Handlers, `getServerSideProps`). Nunca en componentes marcados con `"use client"`.
+
+---
+
+## 1.5 Validar la Lectura en una Página Server Component
+
+Actualizar temporalmente **`app/page.tsx`** para validar la capa de datos:
+
+```typescript
+import { readJson } from "@/lib/data";
+import { SiteConfig } from "@/types";
+
+export default function Home() {
+  // Esta línea valida que: TypeScript + fs + JSON + tipos funcionan juntos
+  const config = readJson<SiteConfig>("site");
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-gray-950">
+      <div className="text-center text-white">
+        <h1 className="text-4xl font-light">{config.hero.title}</h1>
+        <p className="text-gray-400 mt-4 text-sm">{config.hero.subtitle}</p>
+        <p className="text-gray-600 mt-8 text-xs">
+          v{config.version} · {config.locale}
+        </p>
+      </div>
+    </main>
+  );
+}
+```
+
+**Verificación:**
+
+```bash
+npm run dev
+# → http://localhost:3000 muestra "Hola Mundo" y "TypeScript · Next.js · Vercel"
+# → Los datos vienen del JSON, no están hardcodeados
+
+npm run type-check
+# → 0 errores
+
+npm run build
+# → Build exitoso
+```
+
+---
+
+## 1.6 Commit de la Fase 1
+
+```bash
+git add .
+git commit -m "feat(data): capa de datos JSON con tipos TypeScript
+
+- Agrega /data/site.json y /data/content.json
+- Implementa lib/data.ts con helper genérico readJson<T>
+- Define interfaces en types/index.ts
+- Valida lectura en app/page.tsx (Server Component)"
+
+git push origin main
+```
+
+---
+
+## ✅ Checklist Fase 1
+
+- [ ] Carpetas `/data`, `/lib`, `/types` creadas
+- [ ] `data/site.json` creado con estructura completa
+- [ ] `data/content.json` creado como base para futuro contenido
+- [ ] `types/index.ts` con interfaces `SiteConfig`, `HeroConfig`, `ContentData`
+- [ ] `lib/data.ts` con función `readJson<T>` genérica y con manejo de errores
+- [ ] `app/page.tsx` consume datos del JSON (no hardcodeados)
+- [ ] `npm run type-check` → 0 errores
+- [ ] `npm run build` → exitoso
+- [ ] Vercel re-despliega y la URL de producción muestra el contenido del JSON
+
+---
+---
+
+# FASE 2 — Home "Hola Mundo" con Efecto Elegante
+
+> **Meta:** Reemplazar la UI provisional por el componente final animado con Framer Motion, fuentes refinadas y diseño production-ready.
+
+---
+
+## 2.1 Configurar Fuentes con `next/font`
+
+Actualizar **`app/layout.tsx`**:
+
+```typescript
+import type { Metadata } from "next";
+import { Cormorant_Garamond, Inter } from "next/font/google";
+import "./globals.css";
+
+// Fuente display — elegante, serif
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "600"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+// Fuente cuerpo — limpia, sans-serif
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Mi App",
+  description: "Fullstack TypeScript · Next.js · Vercel",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="es" className={`${cormorant.variable} ${inter.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+---
+
+## 2.2 Configurar Variables CSS Globales
+
+Reemplazar **`app/globals.css`**:
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "Inter", sans-serif;
+  --color-bg: #080808;
+  --color-text: #f5f0eb;
+  --color-muted: rgba(245, 240, 235, 0.35);
+  --color-line: rgba(245, 240, 235, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+```
+
+---
+
+## 2.3 Crear la Carpeta de Componentes
+
+```bash
+mkdir -p components/ui
+```
+
+---
+
+## 2.4 Crear el Componente Animado Principal
+
+Crear **`components/HolaMundo.tsx`**:
+
+```typescript
+"use client";
+
+import { motion, Variants } from "framer-motion";
+
+interface HolaMundoProps {
+  title: string;
+  subtitle: string;
+}
+
+// ─── Variantes de animación ─────────────────────────────────────────────────
+
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const letterVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+    rotateX: -40,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+const lineVariants: Variants = {
+  hidden: { scaleX: 0, opacity: 0 },
+  visible: {
+    scaleX: 1,
+    opacity: 1,
+    transition: {
+      duration: 1,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.6,
+    },
+  },
+};
+
+const subtitleVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 0.4,
+    y: 0,
+    transition: {
+      duration: 1,
+      ease: "easeOut",
+      delay: 1.0,
+    },
+  },
+};
+
+const glowVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 2,
+      ease: "easeOut",
+      delay: 0.1,
+    },
+  },
+};
+
+// ─── Componente ─────────────────────────────────────────────────────────────
+
+export default function HolaMundo({ title, subtitle }: HolaMundoProps) {
+  const letters = title.split("");
+
+  return (
+    <div className="relative flex flex-col items-center justify-center text-center px-8">
+
+      {/* Halo de luz de fondo */}
+      <motion.div
+        variants={glowVariants}
+        initial="hidden"
+        animate="visible"
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Título — letra por letra */}
+      <motion.h1
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex overflow-hidden"
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(3rem, 10vw, 8rem)",
+          fontWeight: 300,
+          letterSpacing: "0.12em",
+          color: "var(--color-text)",
+          perspective: "800px",
+        }}
+        aria-label={title}
+      >
+        {letters.map((letter, index) => (
+          <motion.span
+            key={index}
+            variants={letterVariants}
+            style={{ display: letter === " " ? "inline-block" : "inline-block", minWidth: letter === " " ? "0.4em" : undefined }}
+          >
+            {letter}
+          </motion.span>
+        ))}
+      </motion.h1>
+
+      {/* Línea decorativa */}
+      <motion.div
+        variants={lineVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-24 origin-left"
+        style={{
+          height: "1px",
+          background: "linear-gradient(90deg, transparent, var(--color-muted), transparent)",
+          margin: "2rem auto",
+        }}
+      />
+
+      {/* Subtítulo */}
+      <motion.p
+        variants={subtitleVariants}
+        initial="hidden"
+        animate="visible"
+        style={{
+          fontFamily: "var(--font-body)",
+          fontSize: "0.7rem",
+          letterSpacing: "0.35em",
+          textTransform: "uppercase",
+          color: "var(--color-text)",
+        }}
+      >
+        {subtitle}
+      </motion.p>
+    </div>
+  );
+}
+```
+
+---
+
+## 2.5 Actualizar la Página Principal
+
+Reemplazar **`app/page.tsx`** con la versión final:
+
+```typescript
+import { readJson } from "@/lib/data";
+import { SiteConfig } from "@/types";
+import HolaMundo from "@/components/HolaMundo";
+
+export default function Home() {
+  const config = readJson<SiteConfig>("site");
+
+  return (
+    <main
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: "var(--color-bg)" }}
+    >
+      <HolaMundo
+        title={config.hero.title}
+        subtitle={config.hero.subtitle}
+      />
+    </main>
+  );
+}
+```
+
+---
+
+## 2.6 Validar en Local
+
+```bash
+npm run dev
+# → Abrir http://localhost:3000
+# → Verificar: letras aparecen una a una con animación fluida
+# → Verificar: línea se expande suavemente
+# → Verificar: subtítulo aparece con fade
+
+npm run type-check   # → 0 errores
+npm run build        # → build exitoso sin warnings
+```
+
+---
+
+## 2.7 Commit y Deploy
+
+```bash
+git add .
+git commit -m "feat(ui): Home 'Hola Mundo' con animación elegante Framer Motion
+
+- Componente HolaMundo.tsx con animación letra por letra
+- Fuentes Cormorant Garamond + Inter via next/font
+- Variables CSS globales en globals.css
+- Layout actualizado con metadata y fuentes
+- Page.tsx consume SiteConfig del JSON"
+
+git push origin main
+```
+
+Verificar en Vercel que la URL de producción muestra la animación completa.
+
+---
+
+## ✅ Checklist Fase 2
+
+- [ ] Fuentes Cormorant Garamond + Inter configuradas con `next/font`
+- [ ] Variables CSS definidas en `globals.css`
+- [ ] Componente `HolaMundo.tsx` creado con Framer Motion
+- [ ] Animación letra por letra funcionando
+- [ ] Línea decorativa animada
+- [ ] Subtítulo con fade-in
+- [ ] `app/page.tsx` usa Server Component + datos del JSON
+- [ ] Animación visible en local y en producción (Vercel)
+- [ ] `npm run type-check` → 0 errores
+- [ ] Sin `any` implícitos, sin variables sin usar
+
+---
+---
+
+# FASE 3 — Validación TypeScript y CI/CD
+
+> **Meta:** Blindar el proyecto con un pipeline de integración continua que garantice que `main` nunca tenga errores de tipos ni de lint.
+
+---
+
+## 3.1 Crear la Carpeta de GitHub Actions
+
+```bash
+mkdir -p .github/workflows
+```
+
+---
+
+## 3.2 Workflow de Type Check y Lint en PRs
+
+Crear **`.github/workflows/typecheck.yml`**:
+
+```yaml
+name: Type Check & Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: TypeScript — verificar tipos
+        run: npm run type-check
+
+      - name: ESLint — verificar calidad
+        run: npm run lint
+
+      - name: Next.js — verificar build
+        run: npm run build
+```
+
+> El job falla si cualquier paso encuentra errores, bloqueando el merge automáticamente.
+
+---
+
+## 3.3 Proteger la Rama `main` en GitHub
+
+1. Ir al repositorio en GitHub
+2. **Settings → Branches → Add branch protection rule**
+3. Configurar para `main`:
+
+| Opción | Valor |
+|--------|-------|
+| Require a pull request before merging | ✅ |
+| Require status checks to pass | ✅ |
+| Status checks requeridos | `quality` (el job del workflow) |
+| Do not allow bypassing the above settings | ✅ |
+
+---
+
+## 3.4 Verificar el Pipeline con una PR de Prueba
+
+```bash
+# Crear rama de prueba
+git checkout -b test/validar-ci
+
+# Hacer un cambio mínimo (ej: agregar comentario en site.json)
+# Nota: Los comentarios no son válidos en JSON, modificar version:
+# "version": "1.0.1"
+
+git add .
+git commit -m "test: validar pipeline de CI con PR de prueba"
+git push origin test/validar-ci
+```
+
+En GitHub, abrir una Pull Request de `test/validar-ci` → `main`.
+
+**Verificar:**
+- GitHub Actions inicia automáticamente
+- Los tres pasos (type-check, lint, build) pasan en verde
+- El botón "Merge" permanece bloqueado hasta que los checks pasen
+- Una vez verdes, hacer merge
+
+---
+
+## 3.5 Agregar API Route de Ejemplo (validación server-side)
+
+Crear **`app/api/data/route.ts`** para exponer los datos del JSON como endpoint REST:
+
+```typescript
+import { NextResponse } from "next/server";
+import { readJson } from "@/lib/data";
+import { SiteConfig } from "@/types";
+
+export async function GET(): Promise<NextResponse<SiteConfig>> {
+  const config = readJson<SiteConfig>("site");
+  return NextResponse.json(config);
+}
+```
+
+**Verificación:**
+
+```bash
+npm run dev
+# → GET http://localhost:3000/api/data
+# → Debe retornar el JSON de site.json
+```
+
+---
+
+## 3.6 Commit Final de la Fase 3
+
+```bash
+git add .
+git commit -m "feat(ci): GitHub Actions + branch protection + API Route de datos
+
+- Agrega .github/workflows/typecheck.yml
+- Pipeline: type-check + lint + build en cada PR
+- app/api/data/route.ts expone site.json como endpoint REST
+- Branch protection en main configurada"
+
+git push origin main
+```
+
+---
+
+## ✅ Checklist Fase 3
+
+- [ ] `.github/workflows/typecheck.yml` creado y funcional
+- [ ] PR de prueba ejecutó el workflow exitosamente
+- [ ] Los tres checks (type-check, lint, build) pasan en verde
+- [ ] Branch protection activa en `main`
+- [ ] Merge bloqueado si algún check falla
+- [ ] `app/api/data/route.ts` retorna datos del JSON correctamente
+- [ ] Vercel sigue desplegando automáticamente en cada merge a `main`
+
+---
+---
+
+# FASE 4 — Expansión y Escalabilidad (Post v1)
+
+> **Meta:** Sentar las bases para crecer el sistema de datos JSON y agregar nuevas secciones al sitio de manera estructurada y tipada.
+
+> Esta fase no tiene fecha fija — se ejecuta cuando el proyecto necesite crecer.
+
+---
+
+## 4.1 Validación de JSONs con Zod
+
+Instalar Zod para validar la estructura de los archivos JSON en tiempo de build:
+
+```bash
+npm install zod
+```
+
+Actualizar **`lib/data.ts`** con validación:
+
+```typescript
+import fs from "fs";
+import path from "path";
+import { z, ZodSchema } from "zod";
+
+const DATA_DIR = path.join(process.cwd(), "data");
+
+/**
+ * Lee, parsea y valida un archivo JSON contra un schema Zod.
+ * Lanza error detallado si el JSON no cumple la estructura esperada.
+ */
+export function readJson<T>(filename: string, schema: ZodSchema<T>): T {
+  const filePath = path.join(DATA_DIR, `${filename}.json`);
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`[data] Archivo no encontrado: ${filePath}`);
+  }
+
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const parsed = JSON.parse(raw);
+
+  const result = schema.safeParse(parsed);
+
+  if (!result.success) {
+    throw new Error(
+      `[data] Schema inválido en ${filename}.json:\n${result.error.toString()}`
+    );
+  }
+
+  return result.data;
+}
+```
+
+Ejemplo de uso con schema:
+
+```typescript
+// lib/schemas.ts
+import { z } from "zod";
+
+export const SiteConfigSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+  locale: z.string(),
+  hero: z.object({
+    title: z.string(),
+    subtitle: z.string(),
+    animationStyle: z.enum(["elegant", "minimal", "bold"]),
+  }),
+});
+
+// En page.tsx:
+// const config = readJson("site", SiteConfigSchema);
+```
+
+---
+
+## 4.2 Nuevas Secciones de Contenido
+
+Expandir **`data/content.json`** con secciones reales:
+
+```json
+{
+  "sections": [
+    {
+      "id": "about",
+      "title": "Sobre el Proyecto",
+      "body": "Sistema fullstack construido con TypeScript, Next.js y Vercel."
+    },
+    {
+      "id": "stack",
+      "title": "Tecnologías",
+      "body": "Next.js 14 · TypeScript 5 · Tailwind CSS · Framer Motion"
+    }
+  ]
+}
+```
+
+---
+
+## 4.3 Componente de Secciones Dinámicas
+
+Crear **`components/ContentSection.tsx`**:
+
+```typescript
+import { Section } from "@/types";
+
+interface Props {
+  sections: Section[];
+}
+
+export default function ContentSections({ sections }: Props) {
+  if (sections.length === 0) return null;
+
+  return (
+    <div className="max-w-2xl mx-auto px-8 py-24 space-y-16">
+      {sections.map((section) => (
+        <section key={section.id}>
+          <h2 className="text-xl font-light tracking-widest mb-4 text-white/80">
+            {section.title}
+          </h2>
+          <p className="text-white/40 text-sm leading-relaxed font-light">
+            {section.body}
+          </p>
+        </section>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+## 4.4 Hoja de Ruta de Expansión Futura
+
+| Mejora | Descripción | Prioridad |
+|--------|-------------|-----------|
+| Validación Zod | Schemas para todos los JSONs | Alta |
+| Múltiples páginas | Rutas nuevas con datos de `/data` | Media |
+| API Routes completa | CRUD simulado sobre los JSONs | Media |
+| Modo oscuro/claro | Variable de tema en `site.json` | Baja |
+| i18n | Soporte multilenguaje con JSONs por locale | Baja |
+| GitHub API writes | Escritura a JSONs desde producción | Avanzada |
+
+---
+
+## ✅ Checklist Fase 4 (referencia futura)
+
+- [ ] Zod instalado y schemas definidos en `lib/schemas.ts`
+- [ ] `readJson` actualizado para validar con schema
+- [ ] `content.json` expandido con secciones reales
+- [ ] Componente `ContentSections.tsx` creado e integrado
+- [ ] Nuevas páginas o rutas según necesidad del proyecto
+- [ ] Todos los nuevos archivos pasan `type-check` y `lint`
+
+---
+---
+
+# Apéndice — Comandos de Referencia Rápida
+
+## Desarrollo Diario
+
+```bash
+# Iniciar servidor de desarrollo
+npm run dev
+
+# Verificar tipos antes de hacer commit
+npm run type-check
+
+# Ejecutar linter
+npm run lint
+
+# Formatear código
+npm run format
+
+# Build de producción (simular Vercel)
+npm run build
+```
+
+## Flujo de Trabajo Git
+
+```bash
+# Nueva feature o corrección
+git checkout -b feat/nombre-de-la-feature
+
+# Commit semántico
+git commit -m "feat(scope): descripción corta"
+# Tipos: feat | fix | docs | style | refactor | test | chore
+
+# Subir rama y abrir PR
+git push origin feat/nombre-de-la-feature
+# → Abrir PR en GitHub → esperar checks verdes → merge
+```
+
+## Convención de Commits
+
+| Prefijo | Uso |
+|---------|-----|
+| `feat` | Nueva funcionalidad |
+| `fix` | Corrección de bug |
+| `docs` | Cambios en documentación |
+| `style` | Cambios de estilo/formato (sin lógica) |
+| `refactor` | Refactorización sin nueva funcionalidad |
+| `chore` | Tareas de mantenimiento, dependencias |
+
+---
+
+## Verificación de Estado del Proyecto
+
+| Check | Comando | Resultado esperado |
+|-------|---------|-------------------|
+| Tipos | `npm run type-check` | 0 errores |
+| Lint | `npm run lint` | 0 warnings críticos |
+| Build | `npm run build` | ✓ Compiled successfully |
+| Dev | `npm run dev` | http://localhost:3000 activo |
+
+---
+
+*Plan de Implementación por Fases — Fullstack TypeScript · Next.js · Vercel*  
+*Versión 1.0 · Sincronizado con Plan de Infraestructura v1.0*

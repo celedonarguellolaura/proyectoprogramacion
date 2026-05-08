@@ -1,0 +1,1 @@
+# placeholder — reemplaza este archivo con tu favicon.ico real
