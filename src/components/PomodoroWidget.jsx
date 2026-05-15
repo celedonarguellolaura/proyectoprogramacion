@@ -56,12 +56,12 @@ export default function PomodoroWidget() {
             position: 'absolute',
             left: '50%', top: '50%',
             transform: `translate(calc(-50% + ${f.x}px), calc(-50% + ${f.y}px))`,
-            background: 'rgba(13,13,28,0.92)',
-            border: `1px solid ${f.dot}33`,
+            background: '#fff',
+            border: `1px solid ${f.dot}44`,
             borderLeft: `3px solid ${f.dot}`,
             borderRadius: 10,
             padding: '10px 14px',
-            backdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
             whiteSpace: 'nowrap',
             zIndex: 10,
           }}
@@ -88,13 +88,11 @@ export default function PomodoroWidget() {
           position: 'absolute', left: '50%', top: '50%',
           transform: 'translate(-50%, -50%)',
           width: 280,
-          background: 'rgba(13,13,28,0.9)',
+          background: '#fff',
           border: '1px solid var(--border2)',
           borderRadius: 24,
           padding: '28px 24px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: `0 0 0 1px rgba(255,255,255,0.06), 0 32px 64px rgba(0,0,0,0.5), 0 0 40px ${glowColor}`,
-          animation: 'glow 3s ease-in-out infinite',
+          boxShadow: `0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px var(--border), 0 0 32px ${glowColor}`,
           zIndex: 5,
         }}
       >
@@ -103,9 +101,9 @@ export default function PomodoroWidget() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20,
         }}>
           <span style={{
-            fontSize: 12, fontWeight: 500, color: isFocus ? 'var(--indigo-l)' : 'var(--emerald)',
-            background: isFocus ? 'rgba(99,102,241,0.12)' : 'rgba(52,211,153,0.12)',
-            border: `1px solid ${isFocus ? 'rgba(99,102,241,0.3)' : 'rgba(52,211,153,0.3)'}`,
+            fontSize: 12, fontWeight: 500, color: isFocus ? 'var(--azul)' : 'var(--verde)',
+            background: isFocus ? 'rgba(0,200,245,0.1)' : 'rgba(51,209,122,0.1)',
+            border: `1px solid ${isFocus ? 'rgba(0,200,245,0.3)' : 'rgba(51,209,122,0.3)'}`,
             borderRadius: 6, padding: '3px 10px',
           }}>
             {isFocus ? '⚡ Zona de Enfoque' : '☕ Descanso'}
@@ -118,7 +116,7 @@ export default function PomodoroWidget() {
           <svg width="160" height="160" viewBox="0 0 160 160">
             {/* Track */}
             <circle cx="80" cy="80" r={R} fill="none"
-              stroke="rgba(255,255,255,0.06)" strokeWidth="10"/>
+              stroke="rgba(0,0,0,0.07)" strokeWidth="10"/>
             {/* Fill */}
             <motion.circle cx="80" cy="80" r={R} fill="none"
               stroke={ringColor} strokeWidth="10"
@@ -178,11 +176,11 @@ export default function PomodoroWidget() {
             whileTap={{ scale: 0.95 }}
             style={{
               flex: 1, padding: '10px',
-              background: 'linear-gradient(135deg, var(--indigo), #4F46E5)',
+              background: 'var(--cian)',
               border: 'none', borderRadius: 10,
-              color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              color: '#003D4D', fontSize: 13, fontWeight: 500, cursor: 'pointer',
               fontFamily: 'Inter',
-              boxShadow: '0 0 16px rgba(99,102,241,0.35)',
+              boxShadow: '0 0 16px rgba(0,200,245,0.35)',
             }}
           >
             ✓ Finalizar
