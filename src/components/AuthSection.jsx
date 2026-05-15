@@ -71,10 +71,10 @@ function OTPInput({ value, onChange, hasError }) {
           onPaste={handlePaste}
           style={{
             width: 48, height: 58, textAlign: 'center', fontSize: 24, fontWeight: 700,
-            border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? '#818CF8' : 'rgba(255,255,255,0.15)')}`,
+            border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? 'var(--azul)' : 'var(--border2)')}`,
             borderRadius: 12,
-            background: hasError ? 'rgba(251,113,133,0.08)' : (digits[i] ? 'rgba(129,140,248,0.12)' : 'rgba(255,255,255,0.04)'),
-            color: '#fff', fontFamily: 'Inter', outline: 'none',
+            background: hasError ? 'rgba(251,113,133,0.08)' : (digits[i] ? 'rgba(0,200,245,0.1)' : 'var(--surface)'),
+            color: 'var(--t0)', fontFamily: 'Inter', outline: 'none',
             transition: 'all .15s', cursor: 'text',
           }}
         />
@@ -201,7 +201,7 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
 
       {/* Demo code reveal */}
       <div style={{
-        background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.2)',
+        background: 'rgba(0,200,245,0.07)', border: '1px solid rgba(0,200,245,0.3)',
         borderRadius: 12, padding: '14px 16px', marginBottom: 18, textAlign: 'left',
       }}>
         <div style={{ fontSize: 11, color: 'var(--cyan)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -212,7 +212,7 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
         </div>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 14px',
+          background: 'var(--surface2)', borderRadius: 8, padding: '10px 14px',
         }}>
           <span style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.2em' }}>
             {code}
@@ -472,10 +472,10 @@ export default function AuthSection({ onLogin }) {
           {/* Right — form */}
           <motion.div initial={{ opacity: 0, x: 32 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.65, ease: [0.16,1,0.3,1] }}
             style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border2)',
+              background: 'var(--bg)', border: '1px solid var(--border2)',
               borderRadius: 'var(--r-xl)', overflow: 'hidden',
               backdropFilter: 'blur(20px)',
-              boxShadow: '0 32px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px var(--border)',
             }}>
             {/* Tabs */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid var(--border)' }}>
