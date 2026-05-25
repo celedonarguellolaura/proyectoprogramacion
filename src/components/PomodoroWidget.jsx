@@ -9,10 +9,28 @@ function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 }
 
+// Colores del tema del proyecto
+const C = {
+  cian:    '#00C8F5',
+  cianBg:  'rgba(0,200,245,0.10)',
+  verde:   '#33D17A',
+  verdeBg: 'rgba(51,209,122,0.10)',
+  naranja: '#FF8040',
+  naranjaBg: 'rgba(255,128,64,0.10)',
+  lavanda: '#9B59F5',
+  lavandaBg: 'rgba(155,89,245,0.10)',
+  t0: '#1A1A2E',
+  t1: 'rgba(26,26,46,0.82)',
+  t2: 'rgba(26,26,46,0.55)',
+  t3: 'rgba(26,26,46,0.35)',
+  border:  'rgba(0,0,0,0.08)',
+  border2: 'rgba(0,0,0,0.14)',
+}
+
 const stats = [
-  { dot: '#FB7185', label: 'Examen Cálculo', value: 'en 18h' },
-  { dot: '#34D399', label: 'Estudio hoy',    value: '3h 20m'  },
-  { dot: '#A78BFA', label: 'Fatiga',         value: 'Bien 🙂'  },
+  { color: C.naranja, bg: C.naranjaBg, label: 'Examen Cálculo', value: 'en 18h'  },
+  { color: C.verde,   bg: C.verdeBg,   label: 'Estudio hoy',    value: '3h 20m'  },
+  { color: C.lavanda, bg: C.lavandaBg, label: 'Fatiga',         value: 'Bien 🙂' },
 ]
 
 export default function PomodoroWidget() {
@@ -39,54 +57,56 @@ export default function PomodoroWidget() {
       transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       style={{
         width: 300,
-        background: 'linear-gradient(160deg, #0f0f23 0%, #1a1030 100%)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        background: '#fff',
+        border: `1px solid ${C.border2}`,
         borderRadius: 28,
         padding: '26px 24px 22px',
-        boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 24px 60px rgba(0,0,0,0.55), 0 0 60px rgba(99,102,241,0.18)',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04), 0 0 50px rgba(0,200,245,0.08)',
         fontFamily: 'Inter, sans-serif',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Glow bg */}
+      {/* Glow cian sutil en esquina superior */}
       <div style={{
-        position: 'absolute', inset: 0, borderRadius: 28, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 70%)',
+        position: 'absolute', top: -60, right: -60,
+        width: 180, height: 180, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(0,200,245,0.12) 0%, transparent 70%)',
+        pointerEvents: 'none',
       }} />
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <span style={{
-          fontSize: 12, fontWeight: 600, color: '#818CF8',
-          background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
+          fontSize: 12, fontWeight: 600, color: C.cian,
+          background: C.cianBg, border: `1px solid ${C.cian}40`,
           borderRadius: 8, padding: '4px 11px', letterSpacing: '0.02em',
         }}>
           ⚡ Zona de Enfoque
         </span>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>
+        <span style={{ fontSize: 11, color: C.t3, fontWeight: 500 }}>
           50 min · RN-05
         </span>
       </div>
 
       {/* Ring timer */}
-      <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', marginBottom: 18 }}>
         <svg width="160" height="160" viewBox="0 0 160 160">
           {/* Track */}
           <circle cx="80" cy="80" r={R} fill="none"
-            stroke="rgba(255,255,255,0.08)" strokeWidth="11" />
+            stroke="rgba(0,0,0,0.07)" strokeWidth="11" />
           {/* Fill */}
           <circle cx="80" cy="80" r={R} fill="none"
-            stroke="#6366F1" strokeWidth="11"
+            stroke={C.cian} strokeWidth="11"
             strokeLinecap="round"
             strokeDasharray={CIRC}
             strokeDashoffset={dashOffset}
             transform="rotate(-90 80 80)"
-            style={{ filter: 'drop-shadow(0 0 10px #6366F1)', transition: 'stroke-dashoffset 0.9s linear' }}
+            style={{ filter: `drop-shadow(0 0 8px ${C.cian}99)`, transition: 'stroke-dashoffset 0.9s linear' }}
           />
           {/* Tip dot */}
-          <circle cx={dotX} cy={dotY} r="5.5" fill="#818CF8"
-            style={{ filter: 'drop-shadow(0 0 8px #818CF8)' }} />
+          <circle cx={dotX} cy={dotY} r="5.5" fill={C.cian}
+            style={{ filter: `drop-shadow(0 0 6px ${C.cian})` }} />
         </svg>
 
         {/* Time overlay */}
@@ -95,19 +115,19 @@ export default function PomodoroWidget() {
           transform: 'translate(-50%, -50%)', textAlign: 'center',
         }}>
           <div style={{
-            fontSize: 36, fontWeight: 700, color: '#fff',
+            fontSize: 36, fontWeight: 700, color: C.t0,
             fontVariantNumeric: 'tabular-nums', letterSpacing: '-1.5px', lineHeight: 1,
           }}>
             {fmt(time)}
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', marginTop: 5 }}>
+          <div style={{ fontSize: 11, color: C.t3, marginTop: 5 }}>
             {Math.round(progress * 100)}% completado
           </div>
         </div>
       </div>
 
       {/* Stat chips */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
         {stats.map((s, i) => (
           <motion.div
             key={i}
@@ -115,16 +135,14 @@ export default function PomodoroWidget() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 + i * 0.1 }}
             style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: 'rgba(255,255,255,0.06)', border: `1px solid ${s.dot}30`,
-              borderLeft: `2.5px solid ${s.dot}`,
-              borderRadius: 8, padding: '6px 10px', flex: '1 1 0', minWidth: 80,
+              background: s.bg,
+              border: `1px solid ${s.color}30`,
+              borderLeft: `2.5px solid ${s.color}`,
+              borderRadius: 8, padding: '6px 10px', flex: '1 1 0', minWidth: 76,
             }}
           >
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#fff', lineHeight: 1.2 }}>{s.value}</div>
-              <div style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.38)', lineHeight: 1.2 }}>{s.label}</div>
-            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: s.color, lineHeight: 1.2 }}>{s.value}</div>
+            <div style={{ fontSize: 9.5, color: C.t2, lineHeight: 1.3, marginTop: 1 }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -132,11 +150,11 @@ export default function PomodoroWidget() {
       {/* Alert */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
-        background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.25)',
+        background: C.naranjaBg, border: `1px solid ${C.naranja}35`,
         borderRadius: 10, padding: '9px 12px', marginBottom: 16,
       }}>
-        <span style={{ fontSize: 10 }}>🔴</span>
-        <span style={{ fontSize: 12, color: 'rgba(251,113,133,0.9)', lineHeight: 1.4 }}>
+        <span style={{ fontSize: 10, flexShrink: 0 }}>🔴</span>
+        <span style={{ fontSize: 12, color: C.naranja, lineHeight: 1.4, fontWeight: 500 }}>
           Examen de Cálculo en 18h — sesión extendida sugerida
         </span>
       </div>
@@ -148,8 +166,8 @@ export default function PomodoroWidget() {
           whileTap={{ scale: 0.95 }}
           style={{
             flex: 1, padding: '11px 8px',
-            background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: 11, color: 'rgba(255,255,255,0.75)',
+            background: 'transparent', border: `1.5px solid ${C.border2}`,
+            borderRadius: 11, color: C.t1,
             fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'Inter',
           }}
         >
@@ -160,10 +178,10 @@ export default function PomodoroWidget() {
           whileTap={{ scale: 0.95 }}
           style={{
             flex: 1.3, padding: '11px 8px',
-            background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+            background: C.cian,
             border: 'none', borderRadius: 11,
-            color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter',
-            boxShadow: '0 0 20px rgba(99,102,241,0.4)',
+            color: '#003D4D', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter',
+            boxShadow: `0 4px 20px ${C.cian}55`,
           }}
         >
           ✓ Finalizar

@@ -71,11 +71,12 @@ function OTPInput({ value, onChange, hasError }) {
           onPaste={handlePaste}
           style={{
             width: 48, height: 58, textAlign: 'center', fontSize: 24, fontWeight: 700,
-            border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? '#818CF8' : 'rgba(255,255,255,0.15)')}`,
+            border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? 'var(--indigo-l)' : 'var(--border2)')}`,
             borderRadius: 12,
-            background: hasError ? 'rgba(251,113,133,0.08)' : (digits[i] ? 'rgba(129,140,248,0.12)' : 'rgba(255,255,255,0.04)'),
-            color: '#fff', fontFamily: 'Inter', outline: 'none',
+            background: hasError ? 'rgba(251,113,133,0.07)' : (digits[i] ? 'rgba(77,166,255,0.08)' : 'var(--surface)'),
+            color: 'var(--t0)', fontFamily: 'Inter', outline: 'none',
             transition: 'all .15s', cursor: 'text',
+            boxShadow: digits[i] && !hasError ? '0 0 0 3px rgba(77,166,255,0.15)' : 'none',
           }}
         />
       ))}
@@ -212,14 +213,15 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
         </div>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 14px',
+          background: 'rgba(0,200,245,0.06)', border: '1px solid rgba(0,200,245,0.2)',
+          borderRadius: 8, padding: '10px 14px',
         }}>
-          <span style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.2em' }}>
+          <span style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700, color: 'var(--cian)', letterSpacing: '0.2em' }}>
             {code}
           </span>
           <button
             onClick={() => { navigator.clipboard?.writeText(code); addToast('Copiado', 'Código copiado al portapapeles.', 'success') }}
-            style={{ background: 'rgba(34,211,238,0.15)', border: 'none', borderRadius: 6, padding: '5px 10px', color: 'var(--cyan)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter' }}>
+            style={{ background: 'rgba(0,200,245,0.15)', border: '1px solid rgba(0,200,245,0.3)', borderRadius: 6, padding: '5px 10px', color: 'var(--cian)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter', fontWeight: 600 }}>
             Copiar
           </button>
         </div>

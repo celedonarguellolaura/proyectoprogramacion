@@ -61,6 +61,7 @@ export default function FocusPage({ user, onNavigate }) {
   const [timeLeft, setTimeLeft]           = useState(0)
   const [totalMs, setTotalMs]             = useState(0)
   const [isPaused, setIsPaused]           = useState(false)
+  const [pauseNewMin, setPauseNewMin]     = useState('')
   const [pauseCountOver1min, setPauseCountOver1min] = useState(0)
   const [sessionStart, setSessionStart]   = useState(null)
   const [fatigueLevel, setFatigueLevel]   = useState(null)
@@ -159,12 +160,27 @@ export default function FocusPage({ user, onNavigate }) {
   }
 
   const handlePause = () => {
-    stopTimer(); pauseStartRef.current = Date.now(); setIsPaused(true)
+    stopTimer(); pauseStartRef.current = Date.now(); setIsPaused(true); setPauseNewMin('')
   }
   const handleResume = () => {
     const dur = Date.now() - pauseStartRef.current
     if (dur > 60000) { pauseCountRef.current += 1; setPauseCountOver1min(pauseCountRef.current) }
-    startTimeRef.current = Date.now() - (totalMsRef.current - timeLeftRef.current)
+
+    // Si el usuario escribió una nueva duración, reiniciar desde ese valor
+    const parsed = parseFloat(pauseNewMin)
+    if (!isNaN(parsed) && parsed > 0) {
+      const newMs = Math.round(parsed * 60000)
+      totalMsRef.current  = newMs
+      timeLeftRef.current = newMs
+      setTotalMs(newMs)
+      setTimeLeft(newMs)
+      startTimeRef.current = Date.now()
+    } else {
+      // Sin cambio: continuar desde donde se pausó
+      startTimeRef.current = Date.now() - (totalMsRef.current - timeLeftRef.current)
+    }
+
+    setPauseNewMin('')
     setIsPaused(false)
     intervalRef.current = setInterval(() => {
       const remaining = totalMsRef.current - (Date.now() - startTimeRef.current)
@@ -177,7 +193,8 @@ export default function FocusPage({ user, onNavigate }) {
   }
 
   const handleSaveSession = () => {
-    const ev = evaluateSession(pauseCountRef.current, workMin)
+    const actualWorkedMin = (totalMsRef.current - timeLeftRef.current) / 60000
+    const ev = evaluateSession(pauseCountRef.current, actualWorkedMin)
     const session = {
       id: `s_${Date.now()}`, userId: user.id,
       startedAt: sessionStart, endedAt: new Date().toISOString(),
@@ -353,11 +370,11 @@ export default function FocusPage({ user, onNavigate }) {
               <div style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
                 <svg width={220} height={220} viewBox="0 0 220 220">
                   {/* Track */}
-                  <circle cx={110} cy={110} r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={12} />
+                  <circle cx={110} cy={110} r={R} fill="none" stroke={D.border} strokeWidth={12} />
                   {/* Progress arc */}
                   <circle
                     cx={110} cy={110} r={R} fill="none"
-                    stroke={isPaused ? 'rgba(255,255,255,0.25)' : phaseColor}
+                    stroke={isPaused ? D.border2 : phaseColor}
                     strokeWidth={12} strokeLinecap="round"
                     strokeDasharray={CIRC}
                     strokeDashoffset={strokeOffset}
@@ -365,11 +382,11 @@ export default function FocusPage({ user, onNavigate }) {
                     style={{ transition: 'stroke-dashoffset 0.25s linear' }}
                   />
                   {/* Time */}
-                  <text x={110} y={104} textAnchor="middle" fontSize={40} fontWeight={800} fill="#FFFFFF" fontFamily="Inter">
+                  <text x={110} y={106} textAnchor="middle" fontSize={40} fontWeight={800} fill={D.t0} fontFamily="Inter">
                     {fmt(timeLeft)}
                   </text>
-                  <text x={110} y={128} textAnchor="middle" fontSize={13} fill="rgba(255,255,255,0.45)" fontFamily="Inter">
-                    {phase === 'work' ? 'trabajando' : 'descansando'}
+                  <text x={110} y={128} textAnchor="middle" fontSize={13} fill={D.t2} fontFamily="Inter">
+                    {isPaused ? 'pausado' : phase === 'work' ? 'trabajando' : 'descansando'}
                   </text>
                   {pauseCountOver1min > 0 && (
                     <text x={110} y={150} textAnchor="middle" fontSize={11} fill={D.naranja} fontFamily="Inter">
@@ -378,6 +395,38 @@ export default function FocusPage({ user, onNavigate }) {
                   )}
                 </svg>
               </div>
+
+              {/* Input nueva duración al pausar */}
+              {isPaused && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                  style={{ marginBottom: 16, padding: '14px 16px', background: D.card2, borderRadius: 12, border: `1px solid ${D.border2}` }}
+                >
+                  <div style={{ fontSize: 12, color: D.t2, marginBottom: 8, fontWeight: 500 }}>
+                    ¿Cambiar duración al reanudar? (dejar vacío para continuar)
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input
+                      type="number" min={1} max={120}
+                      placeholder={`${Math.round(timeLeft / 60000) || 1}`}
+                      value={pauseNewMin}
+                      onChange={e => setPauseNewMin(e.target.value)}
+                      style={{
+                        flex: 1, padding: '9px 12px', borderRadius: 8,
+                        border: `1.5px solid ${pauseNewMin ? phaseColor : D.border2}`,
+                        background: 'transparent', color: D.t0,
+                        fontFamily: 'Inter', fontSize: 15, fontWeight: 600, outline: 'none',
+                      }}
+                    />
+                    <span style={{ fontSize: 13, color: D.t3 }}>min</span>
+                  </div>
+                  {pauseNewMin && (
+                    <div style={{ fontSize: 11, color: phaseColor, marginTop: 6 }}>
+                      Al reanudar empezará un nuevo conteo de {pauseNewMin} min
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* Controls */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>

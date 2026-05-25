@@ -59,9 +59,9 @@ export const validateBreak = (workMin, breakMin) => {
   return breakMin >= minBreak ? null : `Para ${workMin} min de trabajo el descanso mínimo es ${minBreak} min.`
 }
 
-export const evaluateSession = (pauseCountOver1min, workDurationMin) =>
+export const evaluateSession = (pauseCountOver1min, actualWorkedMin) =>
   pauseCountOver1min <= 2
-    ? { status: 'completada', effectiveMinutes: workDurationMin }
+    ? { status: 'completada', effectiveMinutes: Math.max(1, Math.round(actualWorkedMin)) }
     : { status: 'incompleta', effectiveMinutes: 0 }
 
 export const buildDailyStats = (sessions, date) => {
