@@ -22,33 +22,32 @@ export default function Hero() {
       minHeight: '100vh',
       display: 'flex', alignItems: 'center',
       padding: '80px 0 60px',
-      position: 'relative', overflow: 'hidden',
+      position: 'relative',
     }}>
-      {/* Background orbs */}
-      <div style={{
-        position: 'absolute', width: 600, height: 600, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)',
-        top: -150, right: -100, animation: 'orbDrift 10s ease-in-out infinite',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', width: 400, height: 400, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 70%)',
-        bottom: -80, left: -60, animation: 'orbDrift2 13s ease-in-out infinite',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', width: 300, height: 300, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%)',
-        top: '45%', left: '38%', animation: 'orbDrift 16s ease-in-out infinite reverse',
-        pointerEvents: 'none',
-      }} />
-      {/* Grid overlay */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.025,
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-      }} />
+      {/* Background orbs — clipped a su propio contenedor para no afectar el widget */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <div style={{
+          position: 'absolute', width: 600, height: 600, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)',
+          top: -150, right: -100, animation: 'orbDrift 10s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute', width: 400, height: 400, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 70%)',
+          bottom: -80, left: -60, animation: 'orbDrift2 13s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%)',
+          top: '45%', left: '38%', animation: 'orbDrift 16s ease-in-out infinite reverse',
+        }} />
+        {/* Grid overlay */}
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.025,
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }} />
+      </div>
 
       {/* Uni banner */}
       <motion.div

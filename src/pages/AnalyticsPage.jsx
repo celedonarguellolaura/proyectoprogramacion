@@ -114,6 +114,16 @@ export default function AnalyticsPage({ user }) {
       return d.getFullYear() === selYear && d.getMonth() + 1 === selMonth
     })
     if (!monthSessions.length) { alert('No hay sesiones en este período.'); return }
+
+    // Stats calculadas solo para el mes seleccionado
+    const mCompleted   = monthSessions.filter(s => s.status === 'completada')
+    const mIncomplete  = monthSessions.filter(s => s.status === 'incompleta')
+    const mTotalHours  = +(mCompleted.reduce((a, s) => a + (s.effectiveMinutes || 0), 0) / 60).toFixed(1)
+    const mFatSessions = mCompleted.filter(s => s.fatigueLevel)
+    const mAvgFatigue  = mFatSessions.length
+      ? (mFatSessions.reduce((a, s) => a + s.fatigueLevel, 0) / mFatSessions.length).toFixed(1)
+      : null
+
     const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
     const rows = monthSessions.map(s => `
       <tr>
@@ -129,25 +139,29 @@ export default function AnalyticsPage({ user }) {
     table{width:100%;border-collapse:collapse;margin:16px 0}
     th{background:#00C8F5;color:#003D4D;padding:10px;text-align:left;font-size:13px}
     td{padding:9px 10px;border-bottom:1px solid #eee;font-size:13px}
-    .stat{display:inline-block;margin:8px 16px 8px 0;padding:10px 16px;background:#f7f7f7;border-radius:8px}
-    .stat strong{display:block;font-size:20px}footer{margin-top:32px;font-size:11px;color:#888;border-top:1px solid #eee;padding-top:12px}</style>
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+    .stat{padding:12px 18px;background:#f7f7f7;border-radius:10px;border-left:3px solid #00C8F5}
+    .stat strong{display:block;font-size:20px;color:#003D4D;margin-bottom:2px}
+    .stat span{font-size:12px;color:#666}
+    footer{margin-top:32px;font-size:11px;color:#888;border-top:1px solid #eee;padding-top:12px}</style>
     </head><body>
     <h1>EquilibraStudy — Reporte Mensual</h1>
     <h2>${MONTHS[selMonth-1]} ${selYear} · ${user.name} · ${user.email}</h2>
-    <div>
-      <div class="stat"><strong>${totalHours}h</strong>Horas efectivas</div>
-      <div class="stat"><strong>${completed.length}</strong>Sesiones completadas</div>
-      <div class="stat"><strong>${incomplete.length}</strong>Sesiones incompletas</div>
-      ${avgFatigue ? `<div class="stat"><strong>${FATIGUE_ICONS[Math.round(avgFatigue)]} ${avgFatigue}/5</strong>Fatiga promedio</div>` : ''}
+    <div class="stats">
+      <div class="stat"><strong>${mTotalHours}h</strong><span>Horas efectivas</span></div>
+      <div class="stat"><strong>${mCompleted.length}</strong><span>Sesiones completadas</span></div>
+      <div class="stat"><strong>${mIncomplete.length}</strong><span>Sesiones incompletas</span></div>
+      ${mAvgFatigue ? `<div class="stat"><strong>${FATIGUE_ICONS[Math.round(+mAvgFatigue)]} ${mAvgFatigue}/5</strong><span>Fatiga promedio</span></div>` : ''}
     </div>
     <table><thead><tr><th>Fecha</th><th>Hora</th><th>Duración</th><th>Estado</th><th>Fatiga</th></tr></thead>
     <tbody>${rows}</tbody></table>
     <footer>Generado por EquilibraStudy · ${new Date().toLocaleDateString('es')} · Usa Ctrl+P para guardar como PDF</footer>
     </body></html>`
     const win = window.open('', '_blank')
+    if (!win) { alert('Permite ventanas emergentes para exportar el PDF.'); return }
     win.document.write(html)
     win.document.close()
-    setTimeout(() => win.print(), 400)
+    setTimeout(() => win.print(), 500)
   }
 
   return (
