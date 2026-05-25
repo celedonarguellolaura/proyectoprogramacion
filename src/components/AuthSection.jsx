@@ -72,15 +72,9 @@ function OTPInput({ value, onChange, hasError }) {
           onPaste={handlePaste}
           style={{
             width: 48, height: 58, textAlign: 'center', fontSize: 24, fontWeight: 700,
-<<<<<<< HEAD
             border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? 'var(--indigo-l)' : 'var(--border2)')}`,
             borderRadius: 12,
             background: hasError ? 'rgba(251,113,133,0.07)' : (digits[i] ? 'rgba(77,166,255,0.08)' : 'var(--surface)'),
-=======
-            border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? 'var(--azul)' : 'var(--border2)')}`,
-            borderRadius: 12,
-            background: hasError ? 'rgba(251,113,133,0.08)' : (digits[i] ? 'rgba(0,200,245,0.1)' : 'var(--surface)'),
->>>>>>> 66dff1b720499475d68b843dfeb615b0e430e995
             color: 'var(--t0)', fontFamily: 'Inter', outline: 'none',
             transition: 'all .15s', cursor: 'text',
             boxShadow: digits[i] && !hasError ? '0 0 0 3px rgba(77,166,255,0.15)' : 'none',
@@ -226,7 +220,6 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
         </div>
       ) : emailSent ? (
         <div style={{
-<<<<<<< HEAD
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'rgba(0,200,245,0.06)', border: '1px solid rgba(0,200,245,0.2)',
           borderRadius: 8, padding: '10px 14px',
@@ -239,17 +232,6 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
             style={{ background: 'rgba(0,200,245,0.15)', border: '1px solid rgba(0,200,245,0.3)', borderRadius: 6, padding: '5px 10px', color: 'var(--cian)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter', fontWeight: 600 }}>
             Copiar
           </button>
-=======
-          background: 'rgba(51,209,122,0.08)', border: '1px solid rgba(51,209,122,0.3)',
-          borderRadius: 12, padding: '14px 16px', marginBottom: 18, textAlign: 'center',
-        }}>
-          <div style={{ fontSize: 13, color: 'var(--verde)', fontWeight: 600 }}>
-            ✉️ Correo enviado a {email}
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--t3)', marginTop: 4 }}>
-            Revisa tu bandeja de entrada (y la carpeta de spam por si acaso)
-          </div>
->>>>>>> 66dff1b720499475d68b843dfeb615b0e430e995
         </div>
       ) : (
         <div style={{
