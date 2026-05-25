@@ -450,14 +450,160 @@ function RegisterPanel({ onSwitch, onLogin }) {
   )
 }
 
+/* ── Reset password — pantalla de verificación ───────────────────────────── */
+function ResetVerify({ email, targetUser, onDone, onBack }) {
+  const { addToast } = useToast()
+  const [code,       setCode]       = useState(() => String(Math.floor(100000 + Math.random() * 900000)))
+  const [inputCode,  setInputCode]  = useState('')
+  const [newPass,    setNewPass]    = useState('')
+  const [newPass2,   setNewPass2]   = useState('')
+  const [hasError,   setHasError]   = useState(false)
+  const [attempts,   setAttempts]   = useState(0)
+  const [countdown,  setCountdown]  = useState(300)
+  const [autoFilled, setAutoFilled] = useState(false)
+  const [screen,     setScreen]     = useState('otp') // 'otp' | 'newpass'
+  const [saving,     setSaving]     = useState(false)
+
+  useEffect(() => {
+    if (countdown <= 0) return
+    const id = setInterval(() => setCountdown(p => Math.max(0, p - 1)), 1000)
+    return () => clearInterval(id)
+  }, [countdown])
+
+  const fmtCountdown = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+
+  const verifyCode = useCallback(async (val) => {
+    const input = val ?? inputCode
+    if (input.length < 6) return
+    if (input === code) {
+      setHasError(false)
+      setScreen('newpass')
+    } else {
+      setHasError(true); setAttempts(a => a + 1); setInputCode('')
+      if (attempts + 1 >= 3) {
+        addToast('Demasiados intentos', 'Solicita un nuevo código.', 'error')
+        setInputCode(''); setHasError(false)
+      } else {
+        addToast('Código incorrecto', `${3 - attempts - 1} intentos restantes.`, 'error')
+      }
+    }
+  }, [inputCode, code, attempts, addToast])
+
+  useEffect(() => { if (inputCode.length === 6) verifyCode(inputCode) }, [inputCode])
+
+  const saveNewPass = async e => {
+    e.preventDefault()
+    if (newPass.length < 8) { addToast('Contraseña corta', 'Mínimo 8 caracteres.', 'error'); return }
+    if (newPass !== newPass2) { addToast('No coinciden', 'Las contraseñas deben ser iguales.', 'error'); return }
+    setSaving(true)
+    try {
+      await storage.updateUser(targetUser.id, { pass: newPass })
+      addToast('¡Contraseña actualizada!', 'Ya puedes iniciar sesión con tu nueva contraseña.', 'success')
+      onDone()
+    } catch {
+      addToast('Error', 'No se pudo actualizar la contraseña. Intenta de nuevo.', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (screen === 'newpass') {
+    return (
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 44, marginBottom: 14 }}>🔑</div>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--t0)', marginBottom: 6 }}>Nueva contraseña</h3>
+        <p style={{ fontSize: 13, color: 'var(--t2)', marginBottom: 20 }}>Código verificado. Elige una contraseña nueva.</p>
+        <form onSubmit={saveNewPass} noValidate style={{ textAlign: 'left' }}>
+          <Field label="Nueva contraseña" id="rp-new" type="password" placeholder="Mínimo 8 caracteres"
+            value={newPass} onChange={setNewPass} />
+          <Field label="Confirmar contraseña" id="rp-new2" type="password" placeholder="Repite la contraseña"
+            value={newPass2} onChange={setNewPass2}
+            ok={newPass2 && newPass2 === newPass && newPass2.length >= 8 ? '✓ Las contraseñas coinciden' : ''}
+          />
+          <motion.button type="submit" disabled={saving} className="btn btn-primary btn-full"
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+            style={{ marginTop: 4, opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Guardando…' : '✓ Guardar nueva contraseña'}
+          </motion.button>
+        </form>
+      </motion.div>
+    )
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center' }}>
+      <motion.div animate={{ y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+        style={{ fontSize: 44, marginBottom: 14, display: 'block' }}>🔒</motion.div>
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--t0)', marginBottom: 6 }}>Verifica tu identidad</h3>
+      <p style={{ color: 'var(--t2)', fontSize: 13, marginBottom: 6 }}>Código de verificación para</p>
+      <div style={{
+        display: 'inline-block', padding: '4px 13px', borderRadius: 8, marginBottom: 20,
+        background: 'rgba(129,140,248,0.12)', border: '1px solid rgba(129,140,248,0.3)',
+        fontSize: 13, fontWeight: 600, color: 'var(--indigo-l)',
+      }}>{email}</div>
+
+      <OTPInput value={inputCode} onChange={setInputCode} hasError={hasError} />
+
+      {hasError && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          style={{ color: '#FB7185', fontSize: 12, marginBottom: 10 }}>
+          Código incorrecto. Inténtalo de nuevo.
+        </motion.div>
+      )}
+
+      <div style={{ fontSize: 12, color: 'var(--t3)', marginTop: 8, marginBottom: 16 }}>
+        {countdown > 0
+          ? <>Caduca en <span style={{ color: countdown < 60 ? '#FB7185' : 'var(--t2)', fontWeight: 600 }}>{fmtCountdown(countdown)}</span></>
+          : <span style={{ color: '#FB7185' }}>El código expiró.</span>}
+      </div>
+
+      {/* Demo code box */}
+      <div style={{
+        background: 'rgba(0,200,245,0.07)', border: '1px solid rgba(0,200,245,0.3)',
+        borderRadius: 12, padding: '12px 16px', marginBottom: 14, textAlign: 'left',
+      }}>
+        <div style={{ fontSize: 11, color: 'var(--cian)', fontWeight: 600, marginBottom: 5, textTransform: 'uppercase' }}>
+          💡 Código de verificación
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'var(--surface2)', borderRadius: 8, padding: '8px 12px', marginBottom: 8 }}>
+          <span style={{ fontFamily: 'monospace', fontSize: 24, fontWeight: 700, color: 'var(--azul)', letterSpacing: '0.2em' }}>
+            {code}
+          </span>
+        </div>
+        <button onClick={() => { setInputCode(code); setAutoFilled(true) }}
+          style={{
+            width: '100%', padding: '8px', borderRadius: 8, border: 'none',
+            background: 'linear-gradient(135deg, var(--indigo), var(--cian))',
+            color: '#fff', fontFamily: 'Inter', fontWeight: 600, cursor: 'pointer', fontSize: 13,
+          }}>
+          {autoFilled ? '✓ Código rellenado' : '⚡ Rellenar automáticamente'}
+        </button>
+      </div>
+
+      <button onClick={onBack} style={{
+        width: '100%', padding: '10px', borderRadius: 10,
+        border: '1px solid var(--border2)', background: 'transparent',
+        color: 'var(--t2)', fontFamily: 'Inter', fontSize: 13, cursor: 'pointer',
+      }}>
+        ← Volver al inicio de sesión
+      </button>
+    </motion.div>
+  )
+}
+
 /* ── login panel ─────────────────────────── */
 function LoginPanel({ onSwitch, onLogin }) {
   const { addToast } = useToast()
-  const [email,  setEmail]  = useState('')
-  const [pass,   setPass]   = useState('')
-  const [errors, setErrors] = useState({})
-
-  const [loggingIn, setLoggingIn] = useState(false)
+  const [screen,     setScreen]     = useState('login') // 'login' | 'reset-email' | 'reset-verify'
+  const [email,      setEmail]      = useState('')
+  const [pass,       setPass]       = useState('')
+  const [errors,     setErrors]     = useState({})
+  const [loggingIn,  setLoggingIn]  = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetErr,   setResetErr]   = useState('')
+  const [checking,   setChecking]   = useState(false)
+  const [targetUser, setTargetUser] = useState(null)
 
   const submit = async e => {
     e.preventDefault()
@@ -487,12 +633,82 @@ function LoginPanel({ onSwitch, onLogin }) {
     }
   }
 
+  const startReset = async e => {
+    e.preventDefault()
+    setResetErr('')
+    if (!isEmail(resetEmail)) { setResetErr('Ingresa un correo electrónico válido.'); return }
+    setChecking(true)
+    try {
+      const user = await storage.findUser(resetEmail)
+      if (!user) { setResetErr('No existe ninguna cuenta con ese correo.'); return }
+      if (user.isActive === false) { setResetErr('Esta cuenta está suspendida.'); return }
+      setTargetUser(user)
+      setScreen('reset-verify')
+    } catch {
+      setResetErr('Error de conexión. Intenta de nuevo.')
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  if (screen === 'reset-email') {
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div key="reset-email" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <div style={{ fontSize: 40, marginBottom: 10 }}>🔐</div>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--t0)', marginBottom: 6 }}>Cambiar contraseña</h3>
+            <p style={{ fontSize: 13, color: 'var(--t2)' }}>Ingresa el correo de tu cuenta para continuar.</p>
+          </div>
+          <form onSubmit={startReset} noValidate>
+            <Field label="Correo electrónico" id="rst-email" type="email" placeholder="tu@correo.com"
+              value={resetEmail} onChange={v => { setResetEmail(v); setResetErr('') }}
+              err={resetErr}
+              ok={isEmail(resetEmail) && !resetErr ? '✓ Correo válido' : ''}
+            />
+            <motion.button type="submit" disabled={checking} className="btn btn-primary btn-full"
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+              style={{ marginTop: 4, opacity: checking ? 0.7 : 1 }}>
+              {checking ? 'Buscando cuenta…' : 'Continuar → Verificar identidad'}
+            </motion.button>
+            <button type="button" onClick={() => setScreen('login')} style={{
+              width: '100%', marginTop: 10, padding: '10px', borderRadius: 10,
+              border: '1px solid var(--border2)', background: 'transparent',
+              color: 'var(--t2)', fontFamily: 'Inter', fontSize: 13, cursor: 'pointer',
+            }}>
+              ← Volver al inicio de sesión
+            </button>
+          </form>
+        </motion.div>
+      </AnimatePresence>
+    )
+  }
+
+  if (screen === 'reset-verify') {
+    return (
+      <AnimatePresence mode="wait">
+        <ResetVerify key="reset-verify"
+          email={resetEmail}
+          targetUser={targetUser}
+          onDone={() => { setScreen('login'); setResetEmail('') }}
+          onBack={() => setScreen('reset-email')}
+        />
+      </AnimatePresence>
+    )
+  }
+
   return (
     <form onSubmit={submit} noValidate>
       <Field label="Correo electrónico" id="log-email" type="email" placeholder="tu@correo.com"
         value={email} onChange={v => { setEmail(v); setErrors(p => ({ ...p, email: '' })) }} err={errors.email} />
       <Field label="Contraseña" id="log-pass" type="password" placeholder="Tu contraseña"
         value={pass} onChange={v => { setPass(v); setErrors(p => ({ ...p, pass: '' })) }} err={errors.pass} />
+      <div style={{ textAlign: 'right', marginTop: -8, marginBottom: 14 }}>
+        <span onClick={() => setScreen('reset-email')}
+          style={{ fontSize: 12, color: 'var(--indigo-l)', cursor: 'pointer', fontWeight: 500 }}>
+          ¿Olvidaste tu contraseña?
+        </span>
+      </div>
       <motion.button type="submit" disabled={loggingIn} className="btn btn-primary btn-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} style={{ marginTop: 4, opacity: loggingIn ? 0.7 : 1 }}>
         {loggingIn ? 'Entrando…' : 'Ingresar a EquilibraStudy →'}
       </motion.button>
