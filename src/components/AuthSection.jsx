@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useToast } from '../context/ToastContext'
 import { storage } from '../services/storage'
+import { sendVerificationEmail } from '../services/emailService'
 
 const isEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase().trim())
 
@@ -71,9 +72,15 @@ function OTPInput({ value, onChange, hasError }) {
           onPaste={handlePaste}
           style={{
             width: 48, height: 58, textAlign: 'center', fontSize: 24, fontWeight: 700,
+<<<<<<< HEAD
             border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? 'var(--indigo-l)' : 'var(--border2)')}`,
             borderRadius: 12,
             background: hasError ? 'rgba(251,113,133,0.07)' : (digits[i] ? 'rgba(77,166,255,0.08)' : 'var(--surface)'),
+=======
+            border: `2px solid ${hasError ? '#FB7185' : (digits[i] ? 'var(--azul)' : 'var(--border2)')}`,
+            borderRadius: 12,
+            background: hasError ? 'rgba(251,113,133,0.08)' : (digits[i] ? 'rgba(0,200,245,0.1)' : 'var(--surface)'),
+>>>>>>> 66dff1b720499475d68b843dfeb615b0e430e995
             color: 'var(--t0)', fontFamily: 'Inter', outline: 'none',
             transition: 'all .15s', cursor: 'text',
             boxShadow: digits[i] && !hasError ? '0 0 0 3px rgba(77,166,255,0.15)' : 'none',
@@ -90,8 +97,10 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
   const [inputCode, setInputCode] = useState('')
   const [hasError,  setHasError]  = useState(false)
   const [attempts,  setAttempts]  = useState(0)
-  const [countdown, setCountdown] = useState(300) // 5 min
+  const [countdown, setCountdown] = useState(300)
   const [resent,    setResent]    = useState(false)
+  const [sending,   setSending]   = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const { addToast } = useToast()
 
   const generate = useCallback(() => String(Math.floor(100000 + Math.random() * 900000)), [])
@@ -99,14 +108,18 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
   useEffect(() => {
     const c = generate()
     setCode(c)
-    // Simulate sending: open mailto with code (best we can do client-side)
-    try {
-      const subject = encodeURIComponent('Tu código de verificación — EquilibraStudy')
-      const body = encodeURIComponent(
-        `Hola ${userName},\n\nTu código de verificación para EquilibraStudy es:\n\n${c}\n\nEste código expira en 5 minutos.\n\n— EquilibraStudy`
-      )
-      window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank')
-    } catch (_) {}
+    setSending(true)
+    sendVerificationEmail(email, userName, c).then(res => {
+      setSending(false)
+      if (res.ok) {
+        setEmailSent(true)
+        addToast('Correo enviado', `Revisa la bandeja de entrada de ${email}.`, 'success')
+      } else if (res.demo) {
+        setEmailSent(false)
+      } else {
+        addToast('Error al enviar', 'No se pudo enviar el correo. Usa el código de abajo.', 'error')
+      }
+    })
   }, [email, userName, generate])
 
   // Countdown
@@ -119,14 +132,18 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
   const fmtCountdown = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 
   const handleResend = () => {
-    const c = generate(); setCode(c); setInputCode(''); setHasError(false)
-    setCountdown(300); setResent(true)
-    try {
-      const subject = encodeURIComponent('Tu código de verificación — EquilibraStudy')
-      const body = encodeURIComponent(`Tu nuevo código es: ${c}\n\nEste código expira en 5 minutos.\n\n— EquilibraStudy`)
-      window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank')
-    } catch (_) {}
-    addToast('Código reenviado', 'Revisa tu correo o el recuadro de ayuda abajo.', 'success')
+    const c = generate()
+    setCode(c); setInputCode(''); setHasError(false); setCountdown(300); setResent(true)
+    setSending(true)
+    sendVerificationEmail(email, userName, c).then(res => {
+      setSending(false)
+      if (res.ok) {
+        setEmailSent(true)
+        addToast('Código reenviado', `Revisa la bandeja de ${email}.`, 'success')
+      } else {
+        addToast('Código reenviado', 'El código de abajo es el nuevo.', 'info')
+      }
+    })
     setTimeout(() => setResent(false), 3000)
   }
 
@@ -200,18 +217,16 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
         }
       </div>
 
-      {/* Demo code reveal */}
-      <div style={{
-        background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.2)',
-        borderRadius: 12, padding: '14px 16px', marginBottom: 18, textAlign: 'left',
-      }}>
-        <div style={{ fontSize: 11, color: 'var(--cyan)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          💡 Modo demo — sin servidor de correo
+      {/* Estado del envío / código de respaldo */}
+      {sending ? (
+        <div style={{ textAlign: 'center', marginBottom: 18, color: 'var(--t3)', fontSize: 13 }}>
+          <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+            Enviando correo…
+          </motion.span>
         </div>
-        <div style={{ fontSize: 12, color: 'var(--t2)', marginBottom: 8 }}>
-          En producción el código llegaría a tu correo. Por ahora aparece aquí:
-        </div>
+      ) : emailSent ? (
         <div style={{
+<<<<<<< HEAD
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'rgba(0,200,245,0.06)', border: '1px solid rgba(0,200,245,0.2)',
           borderRadius: 8, padding: '10px 14px',
@@ -224,8 +239,44 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
             style={{ background: 'rgba(0,200,245,0.15)', border: '1px solid rgba(0,200,245,0.3)', borderRadius: 6, padding: '5px 10px', color: 'var(--cian)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter', fontWeight: 600 }}>
             Copiar
           </button>
+=======
+          background: 'rgba(51,209,122,0.08)', border: '1px solid rgba(51,209,122,0.3)',
+          borderRadius: 12, padding: '14px 16px', marginBottom: 18, textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 13, color: 'var(--verde)', fontWeight: 600 }}>
+            ✉️ Correo enviado a {email}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--t3)', marginTop: 4 }}>
+            Revisa tu bandeja de entrada (y la carpeta de spam por si acaso)
+          </div>
+>>>>>>> 66dff1b720499475d68b843dfeb615b0e430e995
         </div>
-      </div>
+      ) : (
+        <div style={{
+          background: 'rgba(0,200,245,0.07)', border: '1px solid rgba(0,200,245,0.3)',
+          borderRadius: 12, padding: '14px 16px', marginBottom: 18, textAlign: 'left',
+        }}>
+          <div style={{ fontSize: 11, color: 'var(--cian)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            💡 Modo demo — configura EmailJS para envío real
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--t2)', marginBottom: 8 }}>
+            Tu código de verificación (úsalo para completar el registro):
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            background: 'var(--surface2)', borderRadius: 8, padding: '10px 14px',
+          }}>
+            <span style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700, color: 'var(--azul)', letterSpacing: '0.2em' }}>
+              {code}
+            </span>
+            <button
+              onClick={() => { navigator.clipboard?.writeText(code); addToast('Copiado', 'Código copiado al portapapeles.', 'success') }}
+              style={{ background: 'rgba(0,200,245,0.15)', border: 'none', borderRadius: 6, padding: '5px 10px', color: 'var(--cian)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter' }}>
+              Copiar
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 10 }}>
         <button onClick={onBack} style={{
@@ -474,10 +525,10 @@ export default function AuthSection({ onLogin }) {
           {/* Right — form */}
           <motion.div initial={{ opacity: 0, x: 32 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.65, ease: [0.16,1,0.3,1] }}
             style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border2)',
+              background: 'var(--bg)', border: '1px solid var(--border2)',
               borderRadius: 'var(--r-xl)', overflow: 'hidden',
               backdropFilter: 'blur(20px)',
-              boxShadow: '0 32px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px var(--border)',
             }}>
             {/* Tabs */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid var(--border)' }}>

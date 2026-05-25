@@ -24,14 +24,13 @@ export default function Toast() {
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             style={{
               display: 'flex', gap: 12, alignItems: 'flex-start',
-              background: 'rgba(13,13,28,0.95)',
-              border: `1px solid ${colors[t.type]}33`,
+              background: '#fff',
+              border: `1px solid ${colors[t.type]}44`,
               borderLeft: `3px solid ${colors[t.type]}`,
               borderRadius: 'var(--r-sm)',
               padding: '14px 18px',
               minWidth: 280, maxWidth: 360,
-              backdropFilter: 'blur(16px)',
-              boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 12px ${colors[t.type]}22`,
+              boxShadow: `0 4px 20px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)`,
               pointerEvents: 'all',
             }}
           >

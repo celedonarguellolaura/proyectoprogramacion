@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Paleta Pastel Vibrante — EquilibraStudy ─────────────────────────────── */
+:root {
+  --color-bg: #ffffff;
+  --color-text: #1a1a2e;
+  --color-muted: #8c9bab;
+  --color-border: #e8ecf0;
+
+  /* Cian brillante — acción principal, Zona de Enfoque */
+  --color-cian: #00c8f5;
+  --color-cian-text: #003d4d;
+  --color-cian-bg: #d6f5ff;
+
+  /* Amarillo sol — metas, logro, Inicio */
+  --color-amarillo: #f5d800;
+  --color-amarillo-text: #6b5a00;
+  --color-amarillo-bg: #fffacc;
+
+  /* Verde menta — éxito, descanso */
+  --color-verde: #33d17a;
+  --color-verde-text: #074d22;
+  --color-verde-bg: #d6ffe9;
+
+  /* Naranja coral — urgente, alerta */
+  --color-naranja: #ff8040;
+  --color-naranja-text: #6b2a00;
+  --color-naranja-bg: #ffe9d6;
+
+  /* Lavanda viva — Analytics */
+  --color-lavanda: #9b59f5;
+  --color-lavanda-text: #3b0080;
+  --color-lavanda-bg: #ede0ff;
+
+  /* Rosa vibrante — fatiga */
+  --color-rosa: #f060a8;
+  --color-rosa-text: #6b0040;
+  --color-rosa-bg: #ffd6ee;
+
+  /* Azul claro — Calendario */
+  --color-azul: #4da6ff;
+  --color-azul-text: #002b6b;
+  --color-azul-bg: #d6ecff;
+
+  /* Gris neutro — Perfil */
+  --color-gris: #8c9bab;
+  --color-gris-text: #1a2633;
+  --color-gris-bg: #e8ecf0;
+}
+
+/* ─── Reset ───────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus ring accesible */
+:focus-visible {
+  outline: 2px solid var(--color-cian);
+  outline-offset: 2px;
+}

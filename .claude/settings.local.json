@@ -6,7 +6,14 @@
       "Bash(Sort-Object)",
       "Bash(npm run *)",
       "Bash(npm install *)",
-      "Bash(node node_modules/vite/bin/vite.js build)"
+      "Bash(node node_modules/vite/bin/vite.js build)",
+      "Bash(Get-ChildItem holamundo *)",
+      "Bash(Remove-Item -Recurse -Force)",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\laura\\\\Desktop\\\\proyecto laura\\\\proyectoprogramacion\\\\holamundo\\\\.env.local\" \"c:\\\\Users\\\\laura\\\\Desktop\\\\proyecto laura\\\\proyectoprogramacion\\\\equilibrastudy-app\\\\.env.local\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\laura\\\\Desktop\\\\proyecto laura\\\\proyectoprogramacion\\\\equilibrastudy-app\\\\\" -Force -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName.Replace\\(\"c:\\\\Users\\\\laura\\\\Desktop\\\\proyecto laura\\\\proyectoprogramacion\\\\equilibrastudy-app\\\\\", \"\"\\) } | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\laura\\\\Desktop\\\\proyecto laura\\\\proyectoprogramacion\\\\equilibrastudy-app\\\\doc\\\\\" -Force -Recurse | ForEach-Object { $_.FullName.Replace\\(\"c:\\\\Users\\\\laura\\\\Desktop\\\\proyecto laura\\\\proyectoprogramacion\\\\equilibrastudy-app\\\\doc\\\\\", \"\"\\) })",
+      "Bash(npx tsc *)",
+      "Bash(echo \"Exit: $?\")"
     ]
   }
 }

@@ -46,8 +46,7 @@ export default function Navbar() {
             boxShadow: '0 0 16px rgba(0,200,245,0.4)',
           }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 3v14M4 10l6-7 6 7" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="10" cy="14" r="3" stroke="#fff" strokeWidth="1.6"/>
+              <path d="M10 17C10 17 2 11.5 2 6.5C2 4.0 4.0 2 6.5 2C8.0 2 9.3 2.8 10 4C10.7 2.8 12.0 2 13.5 2C16.0 2 18 4.0 18 6.5C18 11.5 10 17 10 17Z" fill="#fff"/>
             </svg>
           </div>
           <span style={{ fontSize: 18, fontWeight: 600, color: '#1A1A2E' }}>
