@@ -18,19 +18,21 @@ import AdminPage      from './pages/AdminPage'
 import { storage } from './services/storage'
 
 // Seed admin on first load
-const ensureAdmin = () => {
-  const users = storage.getUsers()
-  if (!users.some(u => u.role === 'super_admin')) {
-    storage.addUser({
-      id: 'u_admin_seed',
-      name: 'Administrador',
-      email: 'admin@usa.edu.co',
-      pass: 'Admin123!',
-      role: 'super_admin',
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    })
-  }
+const ensureAdmin = async () => {
+  try {
+    const users = await storage.getUsers()
+    if (!users.some(u => u.role === 'super_admin')) {
+      await storage.addUser({
+        id: 'u_admin_seed',
+        name: 'Administrador',
+        email: 'admin@usa.edu.co',
+        pass: 'Admin123!',
+        role: 'super_admin',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      })
+    }
+  } catch { /* silencioso — no bloquea el arranque */ }
 }
 
 export default function App() {

@@ -25,12 +25,16 @@ export default function AdminPage({ user }) {
   const [audit,    setAudit]    = useState([])
   const [auditMon, setAuditMon] = useState(new Date().getMonth())
 
-  const load = () => { setUsers(storage.getUsers()); setAudit(storage.getAudit()) }
-  useEffect(load, [])
+  const load = async () => {
+    const u = await storage.getUsers()
+    setUsers(u)
+    setAudit(storage.getAudit())
+  }
+  useEffect(() => { load() }, [])
 
-  const toggleUser = u => {
+  const toggleUser = async u => {
     if (u.id === user.id) { addToast('No permitido', 'No puedes suspenderte a ti mismo.', 'error'); return }
-    storage.updateUser(u.id, { isActive: !u.isActive })
+    await storage.updateUser(u.id, { isActive: !u.isActive })
     storage.addAudit({ userId: user.id, userEmail: user.email, userRole: user.role, action: 'toggle_user', entity: 'user', entityId: u.id, summary: `${!u.isActive ? 'Activado' : 'Suspendido'}: ${u.email}` })
     addToast(!u.isActive ? 'Usuario activado' : 'Usuario suspendido', u.email, !u.isActive ? 'success' : 'error')
     load()

@@ -89,6 +89,7 @@ function OTPInput({ value, onChange, hasError }) {
 function EmailVerification({ email, userName, pendingUser, onVerified, onBack }) {
   const [code,      setCode]      = useState('')
   const [inputCode, setInputCode] = useState('')
+  const [autoFilled, setAutoFilled] = useState(false)
   const [hasError,  setHasError]  = useState(false)
   const [attempts,  setAttempts]  = useState(0)
   const [countdown, setCountdown] = useState(300)
@@ -141,15 +142,28 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
     setTimeout(() => setResent(false), 3000)
   }
 
-  const verify = () => {
-    if (inputCode.length < 6) return
-    if (inputCode === code) {
-      setHasError(false)
-      // Save user
-      storage.addUser(pendingUser)
-      storage.addAudit({ userId: pendingUser.id, userEmail: pendingUser.email, userRole: pendingUser.role, action: 'register', entity: 'user', summary: `Registro verificado: ${pendingUser.name}` })
-      addToast(`¡Bienvenida, ${userName}!`, 'Correo verificado. Tu cuenta está activa.', 'success')
-      onVerified(pendingUser)
+  const [saving, setSaving] = useState(false)
+
+  const verify = useCallback(async (codeToCheck) => {
+    const input = codeToCheck ?? inputCode
+    if (input.length < 6) return
+    if (input === code) {
+      setSaving(true)
+      try {
+        await storage.addUser(pendingUser)
+        storage.addAudit({ userId: pendingUser.id, userEmail: pendingUser.email, userRole: pendingUser.role, action: 'register', entity: 'user', summary: `Registro verificado: ${pendingUser.name}` })
+        setHasError(false)
+        addToast(`¡Bienvenida, ${userName}!`, 'Correo verificado. Tu cuenta está activa.', 'success')
+        onVerified(pendingUser)
+      } catch (err) {
+        const msg = err?.message ?? ''
+        if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('already')) {
+          addToast('Correo ya registrado', 'Este correo ya tiene una cuenta activa.', 'error')
+        } else {
+          addToast('Error al guardar', 'No se pudo crear la cuenta. Intenta de nuevo.', 'error')
+        }
+        setSaving(false)
+      }
     } else {
       setHasError(true); setAttempts(a => a + 1); setInputCode('')
       if (attempts + 1 >= 3) {
@@ -159,10 +173,10 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
         addToast('Código incorrecto', `${3 - attempts - 1} intentos restantes.`, 'error')
       }
     }
-  }
+  }, [inputCode, code, attempts, pendingUser, userName, onVerified, addToast])
 
   // Auto-verify on 6 digits
-  useEffect(() => { if (inputCode.length === 6) verify() }, [inputCode])
+  useEffect(() => { if (inputCode.length === 6) verify(inputCode) }, [inputCode])
 
   return (
     <motion.div
@@ -242,11 +256,11 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
             💡 Modo demo — configura EmailJS para envío real
           </div>
           <div style={{ fontSize: 12, color: 'var(--t2)', marginBottom: 8 }}>
-            Tu código de verificación (úsalo para completar el registro):
+            Tu código de verificación:
           </div>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'var(--surface2)', borderRadius: 8, padding: '10px 14px',
+            background: 'var(--surface2)', borderRadius: 8, padding: '10px 14px', marginBottom: 8,
           }}>
             <span style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700, color: 'var(--azul)', letterSpacing: '0.2em' }}>
               {code}
@@ -257,6 +271,15 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
               Copiar
             </button>
           </div>
+          <button
+            onClick={() => { setInputCode(code); setAutoFilled(true) }}
+            style={{
+              width: '100%', padding: '9px', borderRadius: 8, border: 'none',
+              background: 'linear-gradient(135deg, var(--indigo), var(--cian))',
+              color: '#fff', fontFamily: 'Inter', fontWeight: 600, cursor: 'pointer', fontSize: 13,
+            }}>
+            {autoFilled ? '✓ Código rellenado' : '⚡ Rellenar automáticamente'}
+          </button>
         </div>
       )}
 
@@ -292,24 +315,28 @@ function RegisterPanel({ onSwitch, onLogin }) {
 
   const str = getStrength(pass)
 
-  const validate = () => {
-    const e = {}
-    if (!name.trim() || name.trim().length < 2) e.name = 'Ingresa tu nombre completo.'
-    if (!isEmail(email)) e.email = 'Ingresa un correo electrónico válido.'
-    if (isEmail(email) && storage.findUser(email)) e.email = 'Este correo ya está registrado.'
-    if (pass.length < 8) e.pass = 'La contraseña debe tener al menos 8 caracteres.'
-    if (pass !== pass2) e.pass2 = 'Las contraseñas no coinciden.'
-    return e
-  }
+  const [submitting, setSubmitting] = useState(false)
 
-  const submit = e => {
+  const submit = async e => {
     e.preventDefault()
-    const errs = validate()
-    setErrors(errs)
+    const errs = {}
+    if (!name.trim() || name.trim().length < 2) errs.name = 'Ingresa tu nombre completo.'
+    if (!isEmail(email)) errs.email = 'Ingresa un correo electrónico válido.'
+    if (pass.length < 8) errs.pass = 'La contraseña debe tener al menos 8 caracteres.'
+    if (pass !== pass2) errs.pass2 = 'Las contraseñas no coinciden.'
     if (Object.keys(errs).length > 0) {
-      addToast('Revisa el formulario', 'Hay campos que necesitan corrección.', 'error')
-      return
+      setErrors(errs); addToast('Revisa el formulario', 'Hay campos que necesitan corrección.', 'error'); return
     }
+    setSubmitting(true)
+    try {
+      const existing = await storage.findUser(email)
+      if (existing) {
+        setErrors({ email: 'Este correo ya está registrado.' })
+        addToast('Correo en uso', 'Ya existe una cuenta con este correo.', 'error')
+        return
+      }
+    } catch { /* si falla la consulta, continuamos */ }
+    finally { setSubmitting(false) }
     const user = {
       id: `u_${Date.now()}`,
       name: name.trim(),
@@ -410,8 +437,8 @@ function RegisterPanel({ onSwitch, onLogin }) {
         value={pass2} onChange={v => { setPass2(v); setErrors(p => ({ ...p, pass2: '' })) }} err={errors.pass2}
         ok={pass2 && pass2 === pass && pass2.length >= 8 ? '✓ Las contraseñas coinciden' : ''} />
 
-      <motion.button type="submit" className="btn btn-primary btn-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} style={{ marginTop: 4 }}>
-        Continuar → Verificar correo
+      <motion.button type="submit" disabled={submitting} className="btn btn-primary btn-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} style={{ marginTop: 4, opacity: submitting ? 0.7 : 1 }}>
+        {submitting ? 'Verificando…' : 'Continuar → Verificar correo'}
       </motion.button>
       <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--t3)', marginTop: 16 }}>
         ¿Ya tienes cuenta?{' '}
@@ -430,7 +457,9 @@ function LoginPanel({ onSwitch, onLogin }) {
   const [pass,   setPass]   = useState('')
   const [errors, setErrors] = useState({})
 
-  const submit = e => {
+  const [loggingIn, setLoggingIn] = useState(false)
+
+  const submit = async e => {
     e.preventDefault()
     const errs = {}
     if (!email.trim() || !isEmail(email)) errs.email = 'Ingresa un correo electrónico válido.'
@@ -438,16 +467,24 @@ function LoginPanel({ onSwitch, onLogin }) {
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
 
-    const user = storage.getUsers().find(u => u.email === email.toLowerCase().trim() && u.pass === pass)
-    if (!user) {
-      addToast('Credenciales incorrectas', 'Verifica tu correo y contraseña.', 'error')
-      setErrors({ email: ' ', pass: 'Correo o contraseña incorrectos.' }); return
+    setLoggingIn(true)
+    try {
+      const user = await storage.findUser(email)
+      if (!user || user.pass !== pass) {
+        addToast('Credenciales incorrectas', 'Verifica tu correo y contraseña.', 'error')
+        setErrors({ email: ' ', pass: 'Correo o contraseña incorrectos.' })
+        return
+      }
+      if (user.isActive === false) {
+        addToast('Cuenta suspendida', 'Contacta al administrador.', 'error'); return
+      }
+      addToast(`¡Hola de nuevo, ${user.name}!`, 'Inicio de sesión exitoso. Redirigiendo…', 'success')
+      setTimeout(() => onLogin(user), 800)
+    } catch {
+      addToast('Error de conexión', 'No se pudo conectar. Intenta de nuevo.', 'error')
+    } finally {
+      setLoggingIn(false)
     }
-    if (user.isActive === false) {
-      addToast('Cuenta suspendida', 'Contacta al administrador.', 'error'); return
-    }
-    addToast(`¡Hola de nuevo, ${user.name}!`, 'Inicio de sesión exitoso. Redirigiendo…', 'success')
-    setTimeout(() => onLogin(user), 800)
   }
 
   return (
@@ -456,8 +493,8 @@ function LoginPanel({ onSwitch, onLogin }) {
         value={email} onChange={v => { setEmail(v); setErrors(p => ({ ...p, email: '' })) }} err={errors.email} />
       <Field label="Contraseña" id="log-pass" type="password" placeholder="Tu contraseña"
         value={pass} onChange={v => { setPass(v); setErrors(p => ({ ...p, pass: '' })) }} err={errors.pass} />
-      <motion.button type="submit" className="btn btn-primary btn-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} style={{ marginTop: 4 }}>
-        Ingresar a EquilibraStudy →
+      <motion.button type="submit" disabled={loggingIn} className="btn btn-primary btn-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} style={{ marginTop: 4, opacity: loggingIn ? 0.7 : 1 }}>
+        {loggingIn ? 'Entrando…' : 'Ingresar a EquilibraStudy →'}
       </motion.button>
       <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--t3)', marginTop: 16 }}>
         ¿No tienes cuenta?{' '}

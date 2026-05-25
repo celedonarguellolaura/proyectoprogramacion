@@ -41,13 +41,13 @@ export default function ProfilePage({ user }) {
     addToast('Meta guardada', `Tu meta semanal es ${h} horas.`, 'success')
   }
 
-  const changePass = e => {
+  const changePass = async e => {
     e.preventDefault(); setPassErr('')
-    const me = storage.findUser(user.email)
+    const me = await storage.findUser(user.email)
     if (!me || me.pass !== curPass) { setPassErr('La contraseña actual es incorrecta.'); return }
     if (newPass.length < 8)  { setPassErr('La nueva contraseña debe tener al menos 8 caracteres.'); return }
     if (newPass !== newPass2) { setPassErr('Las contraseñas no coinciden.'); return }
-    storage.updateUser(user.id, { pass: newPass })
+    await storage.updateUser(user.id, { pass: newPass })
     storage.saveSession({ ...user })
     addToast('Contraseña actualizada', 'Tu contraseña ha sido cambiada.', 'success')
     setCurPass(''); setNewPass(''); setNewPass2('')
