@@ -128,37 +128,66 @@ export default function AnalyticsPage({ user }) {
       : null
 
     const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-    const rows = monthSessions.map(s => `
+    const rows = monthSessions.map(s => {
+      const completado = s.status === 'completada'
+      const efectivos  = s.effectiveMinutes ?? 0
+      const propuesto  = s.workDurationMin ?? 0
+      const diferencia = propuesto - efectivos
+      const resumen    = completado
+        ? `${propuesto} min — completado`
+        : `Propuso ${propuesto} min, solo completó ${efectivos} min${diferencia > 0 ? ` (${diferencia} min sin completar)` : ''}`
+      return `
       <tr>
         <td>${new Date(s.startedAt).toLocaleDateString('es')}</td>
         <td>${new Date(s.startedAt).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td>${s.workDurationMin} min</td>
-        <td style="color:${s.status==='completada'?'#074D22':'#8A3C10'};font-weight:600">${s.status}</td>
-        <td>${s.fatigueLevel ? FATIGUE_ICONS[s.fatigueLevel]+' '+s.fatigueLevel+'/5' : '—'}</td>
-      </tr>`).join('')
+        <td style="text-align:center">${propuesto} min</td>
+        <td style="text-align:center;color:${completado?'#074D22':'#8A3C10'};font-weight:600">${efectivos} min</td>
+        <td style="color:${completado?'#074D22':'#CC3300'};font-weight:600">${completado?'✓ Completado':'✗ No completado'}</td>
+        <td style="font-size:12px;color:#555">${resumen}</td>
+        <td style="text-align:center">${s.fatigueLevel ? FATIGUE_ICONS[s.fatigueLevel]+' '+s.fatigueLevel+'/5' : '—'}</td>
+      </tr>`
+    }).join('')
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reporte EquilibraStudy</title>
-    <style>body{font-family:Inter,Arial,sans-serif;padding:32px;color:#1A1A1A;max-width:800px;margin:0 auto}
-    h1{color:#003D4D;margin-bottom:4px}h2{color:#555;font-size:14px;margin-bottom:24px;font-weight:400}
-    table{width:100%;border-collapse:collapse;margin:16px 0}
-    th{background:#00C8F5;color:#003D4D;padding:10px;text-align:left;font-size:13px}
-    td{padding:9px 10px;border-bottom:1px solid #eee;font-size:13px}
-    .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
-    .stat{padding:12px 18px;background:#f7f7f7;border-radius:10px;border-left:3px solid #00C8F5}
-    .stat strong{display:block;font-size:20px;color:#003D4D;margin-bottom:2px}
-    .stat span{font-size:12px;color:#666}
-    footer{margin-top:32px;font-size:11px;color:#888;border-top:1px solid #eee;padding-top:12px}</style>
+    <style>
+      body{font-family:Inter,Arial,sans-serif;padding:32px;color:#1A1A1A;max-width:900px;margin:0 auto}
+      h1{color:#003D4D;margin-bottom:4px;font-size:22px}
+      h2{color:#555;font-size:13px;margin-bottom:24px;font-weight:400}
+      table{width:100%;border-collapse:collapse;margin:16px 0}
+      th{background:#00C8F5;color:#003D4D;padding:10px 8px;text-align:left;font-size:12px;font-weight:700}
+      td{padding:8px;border-bottom:1px solid #eee;font-size:12px;vertical-align:middle}
+      tr:nth-child(even){background:#fafafa}
+      .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+      .stat{padding:12px 18px;background:#f7f7f7;border-radius:10px;border-left:3px solid #00C8F5;min-width:120px}
+      .stat strong{display:block;font-size:20px;color:#003D4D;margin-bottom:2px}
+      .stat span{font-size:11px;color:#666}
+      .nota{font-size:11px;color:#888;margin-bottom:16px;padding:10px 14px;background:#fffbe6;border-left:3px solid #F5D800;border-radius:4px}
+      footer{margin-top:32px;font-size:11px;color:#888;border-top:1px solid #eee;padding-top:12px}
+    </style>
     </head><body>
     <h1>EquilibraStudy — Reporte Mensual</h1>
     <h2>${MONTHS[selMonth-1]} ${selYear} · ${user.name} · ${user.email}</h2>
     <div class="stats">
-      <div class="stat"><strong>${mTotalHours}h</strong><span>Horas efectivas</span></div>
+      <div class="stat"><strong>${mTotalHours}h</strong><span>Minutos efectivos totales</span></div>
       <div class="stat"><strong>${mCompleted.length}</strong><span>Sesiones completadas</span></div>
-      <div class="stat"><strong>${mIncomplete.length}</strong><span>Sesiones incompletas</span></div>
+      <div class="stat"><strong>${mIncomplete.length}</strong><span>Sesiones no completadas</span></div>
       ${mAvgFatigue ? `<div class="stat"><strong>${FATIGUE_ICONS[Math.round(+mAvgFatigue)]} ${mAvgFatigue}/5</strong><span>Fatiga promedio</span></div>` : ''}
     </div>
-    <table><thead><tr><th>Fecha</th><th>Hora</th><th>Duración</th><th>Estado</th><th>Fatiga</th></tr></thead>
-    <tbody>${rows}</tbody></table>
-    <footer>Generado por EquilibraStudy · ${new Date().toLocaleDateString('es')} · Usa Ctrl+P para guardar como PDF</footer>
+    <div class="nota">Una sesión se considera <strong>no completada</strong> si tuvo más de 2 pausas largas (RN-04). Los minutos efectivos son los realmente trabajados sin pausas excesivas.</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th style="text-align:center">Propuesto</th>
+          <th style="text-align:center">Completado</th>
+          <th>Resultado</th>
+          <th>Detalle</th>
+          <th style="text-align:center">Fatiga</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <footer>Generado por EquilibraStudy · ${new Date().toLocaleDateString('es')} · ${user.name} · Usa Ctrl+P para guardar como PDF</footer>
     </body></html>`
     const win = window.open('', '_blank')
     if (!win) { alert('Permite ventanas emergentes para exportar el PDF.'); return }
@@ -280,21 +309,53 @@ export default function AnalyticsPage({ user }) {
           <div style={{ maxHeight: 320, overflow: 'auto' }}>
             {[...userSessions].reverse().map((s, i) => (
               <div key={s.id} style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px',
+                display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px',
                 borderBottom: `1px solid ${D.border}`,
               }}>
+                {/* Indicador color */}
                 <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: s.status === 'completada' ? '#33D17A' : '#FF8040' }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: D.t0 }}>
-                    {s.workDurationMin} min trabajo · {s.status === 'completada' ? 'completado' : 'no completado'}
-                    {s.wasSuggested && <span style={{ marginLeft: 6, fontSize: 10, background: '#FFE9D6', color: '#FF8040', padding: '1px 5px', borderRadius: 4 }}>inteligente</span>}
+
+                {/* Info principal */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+                    {/* Badge estado */}
+                    <span style={{
+                      fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
+                      background: s.status === 'completada' ? 'rgba(51,209,122,0.12)' : 'rgba(255,128,64,0.12)',
+                      color: s.status === 'completada' ? '#33D17A' : '#FF8040',
+                      border: `1px solid ${s.status === 'completada' ? 'rgba(51,209,122,0.3)' : 'rgba(255,128,64,0.3)'}`,
+                    }}>
+                      {s.status === 'completada' ? '✓ Completado' : '✗ No completado'}
+                    </span>
+                    {s.wasSuggested && (
+                      <span style={{ fontSize: 10, background: '#FFE9D6', color: '#FF8040', padding: '2px 6px', borderRadius: 4, fontWeight: 600 }}>
+                        inteligente
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Propuesto vs completado */}
+                  <div style={{ fontSize: 13, color: D.t1, marginBottom: 2 }}>
+                    <span style={{ fontWeight: 600 }}>Propuso:</span>{' '}
+                    <span>{s.workDurationMin} min</span>
+                    <span style={{ color: D.t3, margin: '0 6px' }}>→</span>
+                    <span style={{ fontWeight: 600 }}>Completó:</span>{' '}
+                    <span style={{ color: s.status === 'completada' ? '#33D17A' : '#FF8040', fontWeight: 700 }}>
+                      {s.effectiveMinutes ?? 0} min
+                    </span>
+                    {s.status !== 'completada' && s.workDurationMin > (s.effectiveMinutes ?? 0) && (
+                      <span style={{ color: D.t3, fontSize: 11, marginLeft: 4 }}>
+                        ({s.workDurationMin - (s.effectiveMinutes ?? 0)} min sin completar)
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: 11, color: D.t3 }}>{new Date(s.startedAt).toLocaleString('es')}</div>
                 </div>
-                <div style={{ fontSize: 12, color: D.t3, textAlign: 'right' }}>
-                  {s.effectiveMinutes > 0 && <div style={{ color: '#33D17A', fontWeight: 600 }}>+{s.effectiveMinutes}min</div>}
-                  {s.fatigueLevel && <div>{FATIGUE_ICONS[s.fatigueLevel]} {s.fatigueLevel}/5</div>}
-                  {s.pauseCountOver1min > 0 && <div style={{ color: '#FF8040' }}>{s.pauseCountOver1min} pausas</div>}
+
+                {/* Fatiga y pausas */}
+                <div style={{ fontSize: 12, color: D.t3, textAlign: 'right', flexShrink: 0 }}>
+                  {s.fatigueLevel && <div style={{ fontWeight: 600 }}>{FATIGUE_ICONS[s.fatigueLevel]} {s.fatigueLevel}/5</div>}
+                  {s.pauseCountOver1min > 0 && <div style={{ color: '#FF8040', fontSize: 11 }}>{s.pauseCountOver1min} pausas largas</div>}
                 </div>
               </div>
             ))}
