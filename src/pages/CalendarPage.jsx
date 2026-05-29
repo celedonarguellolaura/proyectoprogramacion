@@ -128,8 +128,11 @@ export default function CalendarPage({ user }) {
   const [modal,    setModal]    = useState(null)
   const [deleting, setDeleting] = useState(null)
 
-  const load = () => setEvents(storage.getEvents(user.id))
-  useEffect(load, [user.id])
+  const load = async () => {
+    const evs = await storage.getEvents(user.id)
+    setEvents(evs)
+  }
+  useEffect(() => { load() }, [user.id])
 
   const firstDay    = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()

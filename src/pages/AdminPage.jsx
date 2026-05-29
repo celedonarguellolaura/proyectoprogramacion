@@ -20,15 +20,18 @@ const Card = ({ children, style }) => (
 
 export default function AdminPage({ user }) {
   const { addToast } = useToast()
-  const [tab,      setTab]      = useState('users')
-  const [users,    setUsers]    = useState([])
-  const [audit,    setAudit]    = useState([])
-  const [auditMon, setAuditMon] = useState(new Date().getMonth())
+  const [tab,         setTab]        = useState('users')
+  const [users,       setUsers]      = useState([])
+  const [audit,       setAudit]      = useState([])
+  const [allSessions, setAllSessions]= useState([])
+  const [auditMon,    setAuditMon]   = useState(new Date().getMonth())
 
   const load = async () => {
     const u = await storage.getUsers()
     setUsers(u)
     setAudit(storage.getAudit())
+    const s = await storage.getAllSessions()
+    setAllSessions(s)
   }
   useEffect(() => { load() }, [])
 
@@ -40,7 +43,6 @@ export default function AdminPage({ user }) {
     load()
   }
 
-  const allSessions  = storage.getAllSessions()
   const auditFiltered = audit.filter(a => new Date(a.timestamp).getMonth() === auditMon)
 
   return (

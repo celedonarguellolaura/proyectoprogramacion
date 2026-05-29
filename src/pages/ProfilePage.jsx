@@ -26,10 +26,16 @@ export default function ProfilePage({ user }) {
   const [newPass,   setNewPass]   = useState('')
   const [newPass2,  setNewPass2]  = useState('')
   const [passErr,   setPassErr]   = useState('')
+  const [sessions,  setSessions]  = useState([])
 
   useEffect(() => {
-    const g = storage.getGoal(user.id, getMonday())
-    if (g) setGoalHours(String(g.goalHours))
+    const load = async () => {
+      const g = await storage.getGoal(user.id, getMonday())
+      if (g) setGoalHours(String(g.goalHours))
+      const s = await storage.getSessions(user.id)
+      setSessions(s)
+    }
+    load()
   }, [user.id])
 
   const saveGoal = e => {
@@ -53,8 +59,7 @@ export default function ProfilePage({ user }) {
     setCurPass(''); setNewPass(''); setNewPass2('')
   }
 
-  const sessions = storage.getSessions(user.id)
-  const totalMin = sessions.filter(s => s.status === 'completada').reduce((a, s) => a + s.effectiveMinutes, 0)
+  const totalMin  = sessions.filter(s => s.status === 'completada').reduce((a, s) => a + s.effectiveMinutes, 0)
   const totalSess = sessions.filter(s => s.status === 'completada').length
 
   return (

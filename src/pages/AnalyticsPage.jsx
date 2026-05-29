@@ -88,10 +88,13 @@ export default function AnalyticsPage({ user }) {
   const [selMonth, setSelMonth] = useState(new Date().getMonth() + 1)
 
   useEffect(() => {
-    const s = storage.getSessions(user.id)
-    setSessions(s)
-    const g = storage.getGoal(user.id, getMonday())
-    setGoal(g)
+    const load = async () => {
+      const s = await storage.getSessions(user.id)
+      setSessions(s)
+      const g = await storage.getGoal(user.id, getMonday())
+      setGoal(g)
+    }
+    load()
   }, [user.id])
 
   const userSessions = sessions.filter(s => s.userId === user.id)

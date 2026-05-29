@@ -26,25 +26,30 @@ export default function DashboardPage({ user, onNavigate }) {
   const [data, setData] = useState(null)
 
   useEffect(() => {
-    const sessions  = storage.getSessions(user.id)
-    const events    = storage.getEvents(user.id)
-    const weekStart = getMonday()
-    const goal      = storage.getGoal(user.id, weekStart)
-    const progress  = getWeeklyProgress(sessions, user.id, weekStart, goal?.goalHours)
-    const continuousMin = getContinuousStudyMinutes(sessions)
-    const urgent    = getUrgentEvents(events)
-    const today     = new Date().toDateString()
-    const todaySessions = sessions.filter(s => new Date(s.startedAt).toDateString() === today)
-    const todayMinutes  = todaySessions.filter(s => s.status === 'completada').reduce((a, s) => a + s.effectiveMinutes, 0)
-    const completedAll  = sessions.filter(s => s.status === 'completada').length
-    let streak = 0
-    const d = new Date()
-    while (true) {
-      const ds = d.toDateString()
-      if (!sessions.some(s => new Date(s.startedAt).toDateString() === ds && s.status === 'completada')) break
-      streak++; d.setDate(d.getDate() - 1)
+    const load = async () => {
+      const weekStart = getMonday()
+      const [sessions, events, goal] = await Promise.all([
+        storage.getSessions(user.id),
+        storage.getEvents(user.id),
+        storage.getGoal(user.id, weekStart),
+      ])
+      const progress  = getWeeklyProgress(sessions, user.id, weekStart, goal?.goalHours)
+      const continuousMin = getContinuousStudyMinutes(sessions)
+      const urgent    = getUrgentEvents(events)
+      const today     = new Date().toDateString()
+      const todaySessions = sessions.filter(s => new Date(s.startedAt).toDateString() === today)
+      const todayMinutes  = todaySessions.filter(s => s.status === 'completada').reduce((a, s) => a + s.effectiveMinutes, 0)
+      const completedAll  = sessions.filter(s => s.status === 'completada').length
+      let streak = 0
+      const d = new Date()
+      while (true) {
+        const ds = d.toDateString()
+        if (!sessions.some(s => new Date(s.startedAt).toDateString() === ds && s.status === 'completada')) break
+        streak++; d.setDate(d.getDate() - 1)
+      }
+      setData({ progress, continuousMin, urgent, todayMinutes, completedAll, streak, sessions })
     }
-    setData({ progress, continuousMin, urgent, todayMinutes, completedAll, streak })
+    load()
   }, [user.id])
 
   if (!data) return <div style={{ padding: 40, color: D.t3, fontSize: 14 }}>Cargando...</div>
@@ -171,7 +176,7 @@ export default function DashboardPage({ user, onNavigate }) {
       ) : (
         <Card>
           <div style={{ fontWeight: 600, color: D.t0, marginBottom: 14, fontSize: 15 }}>Últimas sesiones</div>
-          {storage.getSessions(user.id).slice(-5).reverse().map((s, i) => (
+          {(data?.sessions ?? []).slice(-5).reverse().map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < 4 ? `1px solid ${D.border}` : 'none' }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: s.status === 'completada' ? D.verde : D.naranja }} />
               <div style={{ flex: 1 }}>

@@ -82,24 +82,27 @@ export default function FocusPage({ user, onNavigate }) {
 
   /* ---------- init ---------- */
   useEffect(() => {
-    const sessions = storage.getSessions(user.id)
-    const cm = getContinuousStudyMinutes(sessions)
-    if (cm >= 120) { setBlockCountdown(getTimeUntilUnblocked(sessions)); setScreen('blocked'); return }
-    const saved = storage.getTimer()
-    if (saved?.sessionStart) {
-      setWorkMin(saved.workMin); setBreakMin(saved.breakMin)
-      setWasSuggested(saved.wasSuggested); setSessionStart(saved.sessionStart)
-      setPauseCountOver1min(saved.pauseCountOver1min); pauseCountRef.current = saved.pauseCountOver1min
-      phaseRef.current = saved.phase; setPhase(saved.phase)
-      const remaining = saved.totalMs - (Date.now() - saved.startTime)
-      if (remaining > 0) {
-        startTimeRef.current = saved.startTime; totalMsRef.current = saved.totalMs
-        setTotalMs(saved.totalMs); setScreen('running')
-      } else { storage.clearTimer(); setScreen('suggestion') }
-    } else {
-      const events = storage.getEvents(user.id)
-      setSuggestion(getSmartSuggestion(events)); setScreen('suggestion')
+    const init = async () => {
+      const sessions = await storage.getSessions(user.id)
+      const cm = getContinuousStudyMinutes(sessions)
+      if (cm >= 120) { setBlockCountdown(getTimeUntilUnblocked(sessions)); setScreen('blocked'); return }
+      const saved = storage.getTimer()
+      if (saved?.sessionStart) {
+        setWorkMin(saved.workMin); setBreakMin(saved.breakMin)
+        setWasSuggested(saved.wasSuggested); setSessionStart(saved.sessionStart)
+        setPauseCountOver1min(saved.pauseCountOver1min); pauseCountRef.current = saved.pauseCountOver1min
+        phaseRef.current = saved.phase; setPhase(saved.phase)
+        const remaining = saved.totalMs - (Date.now() - saved.startTime)
+        if (remaining > 0) {
+          startTimeRef.current = saved.startTime; totalMsRef.current = saved.totalMs
+          setTotalMs(saved.totalMs); setScreen('running')
+        } else { storage.clearTimer(); setScreen('suggestion') }
+      } else {
+        const events = await storage.getEvents(user.id)
+        setSuggestion(getSmartSuggestion(events)); setScreen('suggestion')
+      }
     }
+    init()
   }, [user.id])
 
   /* ---------- running interval ---------- */
@@ -132,8 +135,9 @@ export default function FocusPage({ user, onNavigate }) {
     const id = setInterval(() => setBlockCountdown(p => {
       if (p <= 1000) {
         clearInterval(id)
-        const events = storage.getEvents(user.id)
-        setSuggestion(getSmartSuggestion(events)); setScreen('suggestion')
+        storage.getEvents(user.id).then(events => {
+          setSuggestion(getSmartSuggestion(events)); setScreen('suggestion')
+        })
         return 0
       }
       return p - 1000
@@ -192,7 +196,7 @@ export default function FocusPage({ user, onNavigate }) {
     }, 250)
   }
 
-  const handleSaveSession = () => {
+  const handleSaveSession = async () => {
     const actualWorkedMin = (totalMsRef.current - timeLeftRef.current) / 60000
     const ev = evaluateSession(pauseCountRef.current, actualWorkedMin)
     const session = {
@@ -203,7 +207,7 @@ export default function FocusPage({ user, onNavigate }) {
       effectiveMinutes: ev.effectiveMinutes, status: ev.status,
       fatigueLevel, wasSuggested,
     }
-    storage.addSession(session); storage.clearTimer()
+    await storage.addSession(session); storage.clearTimer()
     storage.addAudit({
       userId: user.id, userEmail: user.email, userRole: user.role,
       action: ev.status === 'completada' ? 'complete_session' : 'incomplete_session',
@@ -219,14 +223,17 @@ export default function FocusPage({ user, onNavigate }) {
     setTotalMs(breakMin * 60000); setScreen('running')
   }
 
-  const restart = () => {
+  const restart = async () => {
     stopTimer(); storage.clearTimer()
     pauseCountRef.current = 0; setPauseCountOver1min(0)
     setFatigueLevel(null); setLastSession(null); setIsPaused(false)
-    const sessions = storage.getSessions(user.id)
+    const sessions = await storage.getSessions(user.id)
     const cm = getContinuousStudyMinutes(sessions)
     if (cm >= 120) { setBlockCountdown(getTimeUntilUnblocked(sessions)); setScreen('blocked') }
-    else { setSuggestion(getSmartSuggestion(storage.getEvents(user.id))); setScreen('suggestion') }
+    else {
+      const events = await storage.getEvents(user.id)
+      setSuggestion(getSmartSuggestion(events)); setScreen('suggestion')
+    }
   }
 
   /* ---------- timer visuals ---------- */
