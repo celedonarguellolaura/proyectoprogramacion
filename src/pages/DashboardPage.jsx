@@ -56,7 +56,7 @@ export default function DashboardPage({ user, onNavigate }) {
   const isBlocked = data.continuousMin >= 120
 
   return (
-    <div style={{ padding: '32px', maxWidth: 1100, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 1100, margin: '0 auto' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 13, color: D.t3, marginBottom: 4 }}>{greeting},</p>

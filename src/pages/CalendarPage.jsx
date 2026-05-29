@@ -165,7 +165,7 @@ export default function CalendarPage({ user }) {
   const nextMonth = () => { if (month === 11) { setMonth(0); setYear(y => y + 1) } else setMonth(m => m + 1) }
 
   return (
-    <div style={{ padding: '32px', maxWidth: 1000, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 1000, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -321,6 +321,14 @@ export default function CalendarPage({ user }) {
           })}
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 480px) {
+          .cal-cell { min-height: 58px !important; padding: 4px !important; }
+          .cal-cell .cal-day-num { width: 20px !important; height: 20px !important; font-size: 11px !important; }
+          .cal-event { font-size: 9px !important; }
+        }
+      `}</style>
 
       {/* Modals */}
       <AnimatePresence>

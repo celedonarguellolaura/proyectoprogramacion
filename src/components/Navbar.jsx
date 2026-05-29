@@ -70,8 +70,8 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* CTA */}
-        <div style={{ display: 'flex', gap: 10 }}>
+        {/* CTA — desktop */}
+        <div className="nav-cta" style={{ display: 'flex', gap: 10 }}>
           <motion.a
             href="#registro"
             className="btn btn-ghost"
@@ -92,10 +92,69 @@ export default function Navbar() {
             Crear cuenta →
           </motion.a>
         </div>
+
+        {/* Hamburger — mobile only */}
+        <button
+          className="nav-burger"
+          onClick={() => setOpen(o => !o)}
+          aria-label="Menú"
+          style={{
+            display: 'none', background: 'none',
+            border: '1px solid var(--border2)', borderRadius: 8,
+            width: 36, height: 36, cursor: 'pointer',
+            fontSize: 18, color: 'var(--t0)',
+            alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          {open ? '✕' : '☰'}
+        </button>
       </div>
 
+      {/* Mobile menu drawer */}
+      {open && (
+        <div style={{
+          position: 'absolute', top: 64, left: 0, right: 0,
+          background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid var(--border)',
+          padding: '12px 20px 20px',
+          display: 'flex', flexDirection: 'column', gap: 2,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          zIndex: 199,
+        }}>
+          {links.map(l => (
+            <a key={l.href} href={l.href}
+              onClick={() => setOpen(false)}
+              style={{
+                color: 'rgba(26,26,46,0.65)', fontSize: 16, textDecoration: 'none',
+                fontWeight: 500, padding: '11px 0',
+                borderBottom: '1px solid var(--border)', display: 'block',
+              }}
+            >
+              {l.label}
+            </a>
+          ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 14 }}>
+            <a href="#registro" className="btn btn-ghost btn-full"
+              onClick={() => { setOpen(false); document.getElementById('tab-login')?.click() }}>
+              Iniciar sesión
+            </a>
+            <a href="#registro" className="btn btn-primary btn-full"
+              onClick={() => setOpen(false)}>
+              Crear cuenta →
+            </a>
+          </div>
+        </div>
+      )}
+
       <style>{`
-        @media (max-width: 768px) { .nav-desktop { display: none !important; } }
+        @media (max-width: 768px) {
+          .nav-desktop { display: none !important; }
+          .nav-cta    { display: none !important; }
+          .nav-burger { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .nav-burger { display: none !important; }
+        }
       `}</style>
     </motion.nav>
   )

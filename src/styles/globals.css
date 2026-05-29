@@ -229,8 +229,36 @@ body {
   display: flex; flex-direction: column; gap: 10px; pointer-events: none;
 }
 
+/* ── app page layout (responsive padding for inner pages) ── */
+.app-page { padding: 32px; }
+
+/* ── hero widget responsive ── */
+@media (max-width: 640px) {
+  .hero-widget-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}
+
 /* ── responsive ── */
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
   .section { padding: 70px 0; }
+}
+@media (max-width: 640px) {
+  .app-page { padding: 16px; }
+  .btn-lg { padding: 13px 24px; font-size: 15px; }
+  /* OTP inputs on small screens */
+  .otp-wrap { gap: 6px !important; }
+  .otp-wrap > input { width: 40px !important; height: 50px !important; font-size: 20px !important; }
+}
+@media (max-width: 480px) {
+  .container { padding: 0 14px; }
+  .section { padding: 56px 0; }
+  /* Smaller OTP on very small screens */
+  .otp-wrap { gap: 4px !important; }
+  .otp-wrap > input { width: 34px !important; height: 44px !important; font-size: 18px !important; }
+  /* Profile stats grid → single column */
+  .profile-stats-grid { grid-template-columns: 1fr !important; }
 }

@@ -44,7 +44,7 @@ export default function AdminPage({ user }) {
   const auditFiltered = audit.filter(a => new Date(a.timestamp).getMonth() === auditMon)
 
   return (
-    <div style={{ padding: '32px', maxWidth: 1000, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
         <span style={{ fontSize: 22 }}>⚙️</span>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: D.t0, margin: 0 }}>Administración</h1>

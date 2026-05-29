@@ -166,10 +166,16 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
 
       <style>{`
         @media (max-width: 768px) {
-          main { margin-left: 0 !important; padding-top: 54px; }
+          main { margin-left: 0 !important; padding-top: 54px !important; }
           .mobile-bar { display: flex !important; }
+          .app-page { padding: 16px !important; }
         }
-        @media (min-width: 769px) { .mobile-bar { display: none !important; } }
+        @media (min-width: 769px) {
+          .mobile-bar { display: none !important; }
+        }
+        @media (max-width: 480px) {
+          .app-page { padding: 12px !important; }
+        }
         * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.12) transparent; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }

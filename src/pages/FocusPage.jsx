@@ -235,7 +235,7 @@ export default function FocusPage({ user, onNavigate }) {
   const phaseColor   = phase === 'work' ? D.cian : D.verde
 
   return (
-    <div style={{ padding: '32px', maxWidth: 700, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 700, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
         <span style={{ fontSize: 22 }}>⏱️</span>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: D.t0, margin: 0 }}>Zona de Enfoque</h1>

@@ -61,7 +61,7 @@ function OTPInput({ value, onChange, hasError }) {
   }
 
   return (
-    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 4 }}>
+    <div className="otp-wrap" style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 4 }}>
       {[0,1,2,3,4,5].map(i => (
         <input
           key={i} ref={el => refs.current[i] = el}

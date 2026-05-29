@@ -56,7 +56,8 @@ export default function PomodoroWidget() {
       animate={{ opacity: 1, y: 0,  scale: 1 }}
       transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       style={{
-        width: 300,
+        width: '100%',
+        maxWidth: 300,
         background: '#fff',
         border: `1px solid ${C.border2}`,
         borderRadius: 28,

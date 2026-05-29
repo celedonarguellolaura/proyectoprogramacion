@@ -58,7 +58,7 @@ export default function ProfilePage({ user }) {
   const totalSess = sessions.filter(s => s.status === 'completada').length
 
   return (
-    <div style={{ padding: '32px', maxWidth: 680, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 680, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
         <span style={{ fontSize: 22 }}>👤</span>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: D.t0, margin: 0 }}>Mi Perfil</h1>
@@ -77,7 +77,7 @@ export default function ProfilePage({ user }) {
               </div>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {[
               { label: 'Horas totales de estudio', value: `${(totalMin / 60).toFixed(1)}h`, color: D.cian, bg: D.cianBg },
               { label: 'Sesiones completadas',     value: totalSess, color: D.verde, bg: D.verdeBg },

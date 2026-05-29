@@ -108,11 +108,19 @@ export default function Footer() {
         @media (max-width: 900px) {
           footer .container > div:first-child {
             grid-template-columns: 1fr 1fr !important;
+            gap: 28px !important;
           }
         }
-        @media (max-width: 520px) {
+        @media (max-width: 600px) {
+          footer { padding: 48px 0 28px !important; }
           footer .container > div:first-child {
             grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          footer .container > div:last-child {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 6px !important;
           }
         }
       `}</style>

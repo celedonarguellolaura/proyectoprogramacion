@@ -70,7 +70,7 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      <div className="container" style={{
+      <div className="container hero-layout" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: 60, flexWrap: 'wrap',
       }}>
@@ -79,7 +79,7 @@ export default function Hero() {
           variants={container}
           initial="hidden"
           animate="visible"
-          style={{ flex: 1, minWidth: 300, maxWidth: 560 }}
+          style={{ flex: 1, minWidth: 280, maxWidth: 560 }}
         >
           <motion.div variants={item}>
             <span className="badge" style={{ marginBottom: 24 }}>
@@ -150,10 +150,20 @@ export default function Hero() {
         </motion.div>
 
         {/* Right — Pomodoro widget */}
-        <div style={{ flexShrink: 0 }}>
+        <div className="hero-widget-wrap" style={{ flexShrink: 0 }}>
           <PomodoroWidget />
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .hero-layout { gap: 36px !important; justify-content: flex-start !important; }
+          .hero-layout > div:first-child { min-width: 0 !important; }
+        }
+        @media (max-width: 480px) {
+          .hero-layout { padding-top: 20px; }
+        }
+      `}</style>
 
       {/* Scroll hint */}
       <motion.div
