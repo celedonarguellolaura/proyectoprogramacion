@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { D } from '../../styles/theme'
 
 const NAV = [
-  { id: 'dashboard', label: 'Inicio',          short: 'Inicio',   icon: '🏠', color: D.amarillo },
-  { id: 'focus',     label: 'Zona de Enfoque', short: 'Enfoque',  icon: '⏱️', color: D.cian    },
-  { id: 'calendar',  label: 'Calendario',      short: 'Agenda',   icon: '📅', color: D.azul    },
-  { id: 'analytics', label: 'Analytics',       short: 'Stats',    icon: '📊', color: D.lavanda },
-  { id: 'profile',   label: 'Perfil',          short: 'Perfil',   icon: '👤', color: D.t2      },
+  { id: 'dashboard', label: 'Inicio',          short: 'Inicio',  icon: '🏠', color: D.amarillo },
+  { id: 'focus',     label: 'Zona de Enfoque', short: 'Enfoque', icon: '⏱️', color: D.cian    },
+  { id: 'calendar',  label: 'Calendario',      short: 'Agenda',  icon: '📅', color: D.azul    },
+  { id: 'analytics', label: 'Analytics',       short: 'Stats',   icon: '📊', color: D.lavanda },
+  { id: 'profile',   label: 'Perfil',          short: 'Perfil',  icon: '👤', color: D.t2      },
 ]
 const ADMIN_NAV = { id: 'admin', label: 'Administración', short: 'Admin', icon: '⚙️', color: D.naranja }
 
@@ -26,12 +26,12 @@ export function Avatar({ name, size = 36 }) {
 
 function SidebarContent({ user, currentPage, onNavigate, onGoHome, onLogout, onClose }) {
   const items = user.role === 'super_admin' ? [...NAV, ADMIN_NAV] : NAV
-
   return (
     <aside style={{
       width: 240, height: '100%', display: 'flex', flexDirection: 'column',
       background: D.bg2, borderRight: `1px solid ${D.border}`,
     }}>
+      {/* Logo */}
       <div
         onClick={() => { onGoHome?.(); onClose?.() }}
         style={{
@@ -40,16 +40,16 @@ function SidebarContent({ user, currentPage, onNavigate, onGoHome, onLogout, onC
         }}
         onMouseOver={e => e.currentTarget.style.opacity = '0.75'}
         onMouseOut={e => e.currentTarget.style.opacity = '1'}
-        title="Ir a la página principal"
       >
         <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.4px', color: D.t0 }}>
           Equilibra<span style={{ color: D.cian }}>Study</span>
         </div>
-        <div style={{ fontSize: 10, color: D.t3, marginTop: 2, letterSpacing: '0.03em' }}>
+        <div style={{ fontSize: 10, color: D.t3, marginTop: 2 }}>
           Gestión del tiempo académico
         </div>
       </div>
 
+      {/* Usuario */}
       <div style={{ padding: '14px 18px', borderBottom: `1px solid ${D.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={user.name} size={38} />
         <div style={{ overflow: 'hidden' }}>
@@ -62,40 +62,49 @@ function SidebarContent({ user, currentPage, onNavigate, onGoHome, onLogout, onC
         </div>
       </div>
 
+      {/* Nav items */}
       <nav style={{ flex: 1, padding: '10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
         {items.map(item => {
           const active = currentPage === item.id
           return (
-            <button key={item.id} onClick={() => { onNavigate(item.id); onClose?.() }} style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-              borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'Inter',
-              fontSize: 14, fontWeight: active ? 600 : 400, transition: 'all .15s',
-              background: active ? `${item.color}18` : 'transparent',
-              color: active ? item.color : D.t2,
-              width: '100%', textAlign: 'left',
-            }}
+            <button
+              key={item.id}
+              onClick={() => { onNavigate(item.id); onClose?.() }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'Inter',
+                fontSize: 14, fontWeight: active ? 600 : 400, transition: 'all .15s',
+                background: active ? `${item.color}18` : 'transparent',
+                color: active ? item.color : D.t2,
+                width: '100%', textAlign: 'left',
+              }}
               onMouseOver={e => { if (!active) e.currentTarget.style.background = D.card2 }}
               onMouseOut={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
             >
               <span style={{ fontSize: 17, lineHeight: 1 }}>{item.icon}</span>
               {item.label}
               {active && (
-                <motion.div layoutId="nav-dot" style={{
-                  marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: item.color,
-                }} />
+                <motion.div
+                  layoutId="nav-dot"
+                  style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: item.color }}
+                />
               )}
             </button>
           )
         })}
       </nav>
 
+      {/* Cerrar sesión */}
       <div style={{ padding: '12px' }}>
-        <button onClick={onLogout} style={{
-          width: '100%', padding: '10px', borderRadius: 10,
-          border: `1px solid ${D.naranjaBg}`, background: D.naranjaBg,
-          color: D.naranja, fontFamily: 'Inter', fontSize: 13,
-          cursor: 'pointer', fontWeight: 500, transition: 'background .15s',
-        }}>
+        <button
+          onClick={onLogout}
+          style={{
+            width: '100%', padding: '10px', borderRadius: 10,
+            border: `1px solid ${D.naranjaBg}`, background: D.naranjaBg,
+            color: D.naranja, fontFamily: 'Inter', fontSize: 13,
+            cursor: 'pointer', fontWeight: 500,
+          }}
+        >
           Cerrar sesión
         </button>
       </div>
@@ -108,15 +117,20 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
   const userMenuRef = useRef(null)
   const navItems = user.role === 'super_admin' ? [...NAV, ADMIN_NAV] : NAV
 
-  // Cierra el menú de usuario al tocar fuera
+  // Cierra menú de usuario al tocar fuera
   useEffect(() => {
     if (!showUserMenu) return
-    const close = e => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setShowUserMenu(false)
+    const handler = e => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false)
+      }
     }
-    document.addEventListener('mousedown', close)
-    document.addEventListener('touchstart', close)
-    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('touchstart', close) }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
   }, [showUserMenu])
 
   return (
@@ -132,16 +146,19 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
         />
       </div>
 
-      {/* ── Top bar móvil ── */}
-      <div className="mobile-bar" style={{
-        position: 'fixed', top: 0, left: 0, right: 0, height: 54,
-        background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)',
-        borderBottom: `1px solid ${D.border}`,
-        display: 'none', alignItems: 'center',
-        justifyContent: 'space-between', padding: '0 16px',
-        zIndex: 150,
-      }}>
-        {/* Logo → landing */}
+      {/* ── Top bar — solo móvil ── */}
+      <div
+        className="mobile-bar"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, height: 54,
+          background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(16px)',
+          borderBottom: `1px solid ${D.border}`,
+          display: 'none', alignItems: 'center',
+          justifyContent: 'space-between', padding: '0 16px',
+          zIndex: 150,
+        }}
+      >
+        {/* Logo */}
         <span
           onClick={onGoHome}
           style={{ fontWeight: 800, color: D.t0, fontSize: 17, cursor: 'pointer', letterSpacing: '-0.3px' }}
@@ -149,14 +166,15 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
           Equilibra<span style={{ color: D.cian }}>Study</span>
         </span>
 
-        {/* Avatar + menú usuario */}
+        {/* Avatar con dropdown */}
         <div ref={userMenuRef} style={{ position: 'relative' }}>
-          <div
+          <button
             onClick={() => setShowUserMenu(v => !v)}
             style={{
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-              background: D.surface, border: `1px solid ${D.border}`,
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: D.card, border: `1px solid ${D.border}`,
               borderRadius: 99, padding: '4px 10px 4px 4px',
+              cursor: 'pointer', fontFamily: 'Inter',
             }}
           >
             <Avatar name={user.name} size={28} />
@@ -164,35 +182,40 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
               {user.name.split(' ')[0]}
             </span>
             <span style={{ fontSize: 10, color: D.t3 }}>{showUserMenu ? '▲' : '▼'}</span>
-          </div>
+          </button>
 
-          {/* Dropdown */}
+          {/* Dropdown usuario */}
           <AnimatePresence>
             {showUserMenu && (
               <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                initial={{ opacity: 0, y: -8, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                exit={{ opacity: 0, y: -8, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
                 style={{
                   position: 'absolute', top: 42, right: 0,
                   background: '#fff', border: `1px solid ${D.border2}`,
-                  borderRadius: 16, padding: '14px',
+                  borderRadius: 16, padding: '16px',
                   minWidth: 220,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                   zIndex: 999,
                 }}
               >
-                {/* Info usuario */}
+                {/* Info */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                   <Avatar name={user.name} size={40} />
-                  <div>
-                    <div style={{ fontWeight: 700, color: D.t0, fontSize: 14 }}>{user.name}</div>
-                    <div style={{ fontSize: 11, color: D.t3, marginTop: 1 }}>{user.email}</div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontWeight: 700, color: D.t0, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {user.name}
+                    </div>
+                    <div style={{ fontSize: 11, color: D.t3, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {user.email}
+                    </div>
                     <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4,
-                      background: 'rgba(51,209,122,0.12)', border: '1px solid rgba(51,209,122,0.3)',
-                      borderRadius: 6, padding: '2px 7px', fontSize: 10, color: D.verde, fontWeight: 600,
+                      display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 5,
+                      background: D.verdeBg, border: `1px solid ${D.verde}40`,
+                      borderRadius: 6, padding: '2px 7px',
+                      fontSize: 10, color: D.verde, fontWeight: 600,
                     }}>
                       ✓ {user.role === 'super_admin' ? 'Administrador' : 'Estudiante'}
                     </div>
@@ -205,9 +228,8 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
                   onClick={() => { setShowUserMenu(false); onLogout() }}
                   style={{
                     width: '100%', padding: '11px', borderRadius: 10, border: 'none',
-                    background: 'rgba(255,128,64,0.1)', color: D.naranja,
+                    background: D.naranjaBg, color: D.naranja,
                     fontFamily: 'Inter', fontWeight: 600, cursor: 'pointer', fontSize: 14,
-                    transition: 'background .15s',
                   }}
                 >
                   Cerrar sesión
@@ -234,14 +256,16 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
       </main>
 
       {/* ── Bottom navigation — solo móvil ── */}
-      <nav className="mobile-bottom-nav" style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
-        borderTop: `1px solid ${D.border}`,
-        display: 'none', alignItems: 'center', justifyContent: 'space-around',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        height: 64, zIndex: 150,
-      }}>
+      <nav
+        className="mobile-bottom-nav"
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
+          borderTop: `1px solid ${D.border}`,
+          display: 'none', alignItems: 'center', justifyContent: 'space-around',
+          height: 64, zIndex: 150,
+        }}
+      >
         {navItems.map(item => {
           const active = currentPage === item.id
           return (
@@ -252,37 +276,36 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
                 background: active ? `${item.color}15` : 'transparent',
                 border: 'none', cursor: 'pointer',
-                padding: '7px 10px', borderRadius: 12,
-                transition: 'all .15s', fontFamily: 'Inter',
-                minWidth: 52, flex: 1,
+                padding: '6px 8px', borderRadius: 12,
+                transition: 'background .2s',
+                fontFamily: 'Inter', flex: 1,
+                position: 'relative',
               }}
             >
-              <motion.span
-                style={{ fontSize: 22, lineHeight: 1, display: 'block' }}
-                animate={{ scale: active ? 1.15 : 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
+              <span style={{
+                fontSize: 22, lineHeight: 1,
+                transform: active ? 'scale(1.15)' : 'scale(1)',
+                transition: 'transform .2s',
+                display: 'block',
+              }}>
                 {item.icon}
-              </motion.span>
+              </span>
               <span style={{
                 fontSize: 10, lineHeight: 1,
                 color: active ? item.color : D.t3,
                 fontWeight: active ? 700 : 400,
-                letterSpacing: active ? '-0.2px' : '0',
               }}>
                 {item.short}
               </span>
               {active && (
-                <motion.div
-                  layoutId="bottom-indicator"
-                  style={{
-                    position: 'absolute', bottom: 0,
-                    width: 32, height: 3,
-                    background: item.color,
-                    borderRadius: '3px 3px 0 0',
-                  }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
+                <span style={{
+                  position: 'absolute', bottom: 0, left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 28, height: 3,
+                  background: item.color,
+                  borderRadius: '3px 3px 0 0',
+                  display: 'block',
+                }} />
               )}
             </button>
           )
@@ -290,18 +313,14 @@ export default function AppLayout({ user, currentPage, onNavigate, onGoHome, onL
       </nav>
 
       <style>{`
-        /* Desktop: sidebar visible, bottom nav oculto */
         .desktop-sidebar { display: block; }
         .mobile-bottom-nav { display: none !important; }
-        .mobile-bar { display: none !important; }
+        .mobile-bar        { display: none !important; }
 
         @media (max-width: 768px) {
-          /* Ocultar sidebar de escritorio */
-          .desktop-sidebar { display: none !important; }
-          /* Mostrar top bar y bottom nav */
-          .mobile-bar { display: flex !important; }
-          .mobile-bottom-nav { display: flex !important; position: fixed !important; }
-          /* Ajustar main */
+          .desktop-sidebar   { display: none !important; }
+          .mobile-bar        { display: flex !important; }
+          .mobile-bottom-nav { display: flex !important; }
           main {
             margin-left: 0 !important;
             padding-top: 54px !important;
