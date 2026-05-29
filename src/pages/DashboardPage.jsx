@@ -176,21 +176,35 @@ export default function DashboardPage({ user, onNavigate }) {
       ) : (
         <Card>
           <div style={{ fontWeight: 600, color: D.t0, marginBottom: 14, fontSize: 15 }}>Últimas sesiones</div>
-          {(data?.sessions ?? []).slice(-5).reverse().map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < 4 ? `1px solid ${D.border}` : 'none' }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: s.status === 'completada' ? D.verde : D.naranja }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, color: D.t1, fontWeight: 500 }}>
-                  {s.workDurationMin} min · {s.status}
-                  {s.fatigueLevel && <span style={{ color: D.rosa, marginLeft: 6 }}>Fatiga: {s.fatigueLevel}/5</span>}
+          {(data?.sessions ?? []).slice(-5).reverse().map((s, i) => {
+            const completado = s.status === 'completada'
+            const efectivos  = s.effectiveMinutes ?? 0
+            const propuesto  = s.workDurationMin ?? 0
+            return (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < 4 ? `1px solid ${D.border}` : 'none' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: completado ? D.verde : D.naranja }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, color: D.t1, fontWeight: 500 }}>
+                    Propuso {propuesto} min
+                    <span style={{ color: D.t3, margin: '0 4px' }}>→</span>
+                    <span style={{ color: completado ? D.verde : D.naranja, fontWeight: 700 }}>
+                      completó {efectivos} min
+                    </span>
+                    {s.fatigueLevel && <span style={{ color: D.rosa, marginLeft: 6, fontSize: 11 }}>· Fatiga {s.fatigueLevel}/5</span>}
+                  </div>
+                  <div style={{ fontSize: 11, color: D.t3, marginTop: 2 }}>{new Date(s.startedAt).toLocaleString('es')}</div>
                 </div>
-                <div style={{ fontSize: 11, color: D.t3 }}>{new Date(s.startedAt).toLocaleString('es')}</div>
+                <span style={{
+                  fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, flexShrink: 0,
+                  background: completado ? 'rgba(51,209,122,0.12)' : 'rgba(255,128,64,0.12)',
+                  color: completado ? D.verde : D.naranja,
+                  border: `1px solid ${completado ? 'rgba(51,209,122,0.3)' : 'rgba(255,128,64,0.3)'}`,
+                }}>
+                  {completado ? '✓ Completado' : '✗ No completado'}
+                </span>
               </div>
-              <div style={{ fontSize: 13, color: s.status === 'completada' ? D.verde : D.naranja, fontWeight: 600 }}>
-                {s.status === 'completada' ? `+${s.effectiveMinutes}min` : 'incompleta'}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </Card>
       )}
     </div>
