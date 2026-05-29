@@ -286,7 +286,7 @@ export default function AnalyticsPage({ user }) {
                 <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: s.status === 'completada' ? '#33D17A' : '#FF8040' }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 500, color: D.t0 }}>
-                    {s.workDurationMin} min trabajo · {s.status}
+                    {s.workDurationMin} min trabajo · {s.status === 'completada' ? 'completado' : 'no completado'}
                     {s.wasSuggested && <span style={{ marginLeft: 6, fontSize: 10, background: '#FFE9D6', color: '#FF8040', padding: '1px 5px', borderRadius: 4 }}>inteligente</span>}
                   </div>
                   <div style={{ fontSize: 11, color: D.t3 }}>{new Date(s.startedAt).toLocaleString('es')}</div>
