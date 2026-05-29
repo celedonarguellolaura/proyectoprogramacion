@@ -150,11 +150,11 @@ function EmailVerification({ email, userName, pendingUser, onVerified, onBack })
     if (input === code) {
       setSaving(true)
       try {
-        await storage.addUser(pendingUser)
-        storage.addAudit({ userId: pendingUser.id, userEmail: pendingUser.email, userRole: pendingUser.role, action: 'register', entity: 'user', summary: `Registro verificado: ${pendingUser.name}` })
+        const savedUser = await storage.addUser(pendingUser)
+        storage.addAudit({ userId: savedUser.id, userEmail: savedUser.email, userRole: savedUser.role, action: 'register', entity: 'user', summary: `Registro verificado: ${savedUser.name}` })
         setHasError(false)
         addToast(`¡Bienvenida, ${userName}!`, 'Correo verificado. Tu cuenta está activa.', 'success')
-        onVerified(pendingUser)
+        onVerified(savedUser)
       } catch (err) {
         const msg = err?.message ?? ''
         if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('already')) {
